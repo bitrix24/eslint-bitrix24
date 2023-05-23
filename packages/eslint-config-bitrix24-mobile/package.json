@@ -1,0 +1,24 @@
+{
+	"name": "@bitrix24/eslint-config-bitrix24-mobile",
+	"version": "1.0.0",
+	"description": "ESLint rules for the Bitrix24 Mobile JavaScript Style Guide",
+	"main": "index.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bitrix24/eslint-bitrix24.git"
+	},
+	"keywords": [
+		"eslint"
+	],
+	"author": "Bitrix24",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/bitrix24/eslint-bitrix24/issues"
+	},
+	"homepage": "https://github.com/bitrix24/eslint-bitrix24#readme",
+	"dependencies": {
+		"@bitrix24/eslint-config-bitrix24": "^1.0.0",
+		"@bitrix24/eslint-plugin-bitrix24-janative": "^1.0.0",
+		"eslint-plugin-es": "^4.1.0"
+	}
+}

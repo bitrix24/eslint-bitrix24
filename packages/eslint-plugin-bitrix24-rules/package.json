@@ -1,0 +1,19 @@
+{
+  "name": "@bitrix24/eslint-plugin-bitrix24-rules",
+  "version": "1.0.0",
+  "description": "ESLint rules for the Bitrix24 JavaScript style guide",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitrix24/eslint-bitrix24.git"
+  },
+  "keywords": [
+    "eslint"
+  ],
+  "author": "Bitrix24",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bitrix24/eslint-bitrix24/issues"
+  },
+  "homepage": "https://github.com/bitrix24/eslint-bitrix24#readme"
+}

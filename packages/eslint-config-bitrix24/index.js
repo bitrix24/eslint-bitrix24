@@ -14,7 +14,6 @@ module.exports = {
 		'./rules/variables.js',
 
 		'./rules/plugins/brace-rules.js',
-		'./rules/plugins/es.js',
 		'./rules/plugins/flowtype.js',
 		'./rules/plugins/import.js',
 		'./rules/plugins/unicorn.js',

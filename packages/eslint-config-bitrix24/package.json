@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bitrix24/eslint-config-bitrix24.git"
+    "url": "git+https://github.com/bitrix24/eslint-bitrix24.git"
   },
   "keywords": [
     "eslint"
@@ -16,18 +16,21 @@
   "author": "Bitrix24",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bitrix24/eslint-config-bitrix24/issues"
+    "url": "https://github.com/bitrix24/eslint-bitrix24/issues"
   },
-  "homepage": "https://github.com/bitrix24/eslint-config-bitrix24#readme",
+  "homepage": "https://github.com/bitrix24/eslint-bitrix24#readme",
+  "peerDependencies": {
+      "eslint": "^8.41.0"
+  },
   "dependencies": {
     "@babel/core": "^7.21.8",
     "@babel/eslint-parser": "^7.21.8",
     "@babel/plugin-syntax-flow": "^7.21.4",
     "eslint": "^8.41.0",
     "eslint-plugin-brace-rules": "^0.1.6",
-    "eslint-plugin-es": "^4.1.0",
     "eslint-plugin-flowtype": "^8.0.3",
     "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-unicorn": "^47.0.0"
+    "eslint-plugin-unicorn": "^47.0.0",
+    "@bitrix24/eslint-plugin-bitrix24-rules": "^1.0.0"
   }
 }

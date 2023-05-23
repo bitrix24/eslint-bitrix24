@@ -1,0 +1,20 @@
+module.exports = {
+	rules: {
+		'no-io-without-polyfill': require('./rules/no-io-without-polyfill'),
+		'no-pseudo-private': require('./rules/no-pseudo-private'),
+		'no-native-events-binding': require('./rules/no-native-events-binding'),
+		'no-typeof': require('./rules/no-typeof'),
+		'no-bx-message': require('./rules/no-bx-message'),
+		'no-classlist': require('./rules/no-classlist'),
+		'no-style': require('./rules/no-style'),
+		'no-jsdd': require('./rules/no-jsdd'),
+		'no-native-dialogs': require('./rules/no-native-dialogs'),
+		'no-native-dom-methods': require('./rules/no-native-dom-methods'),
+		'no-eventemitter-without-namespace': require('./rules/no-eventemitter-without-namespace'),
+		'no-nil-compare': require('./rules/no-nil-compare'),
+		'no-bx': require('./rules/no-bx'),
+		'no-private': require('./rules/no-private'),
+		'no-short-class-property': require('./rules/no-short-class-property'),
+		'need-alias': require('./rules/need-alias'),
+	},
+};
