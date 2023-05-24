@@ -30,7 +30,7 @@ module.exports = {
 		'unicorn/no-object-as-default-parameter': 'warn',
 		'unicorn/no-thenable': 'error',
 		'unicorn/no-this-assignment': 'error',
-		'unicorn/no-typeof-undefined': 'error',
+		'unicorn/no-typeof-undefined': 'off', // use bitrix-rules/no-typeof
 		'unicorn/no-unreadable-array-destructuring': 'error',
 		'unicorn/no-unreadable-iife': 'error',
 		'unicorn/no-useless-fallback-in-spread': 'error',
