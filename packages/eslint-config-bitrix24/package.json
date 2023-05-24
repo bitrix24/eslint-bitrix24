@@ -20,17 +20,20 @@
   },
   "homepage": "https://github.com/bitrix24/eslint-bitrix24#readme",
   "peerDependencies": {
-      "eslint": "^8.41.0"
+    "eslint": "^8.41.0"
   },
   "dependencies": {
     "@babel/core": "^7.21.8",
     "@babel/eslint-parser": "^7.21.8",
     "@babel/plugin-syntax-flow": "^7.21.4",
+    "@bitrix24/eslint-plugin-bitrix24-rules": "^1.0.0",
     "eslint": "^8.41.0",
     "eslint-plugin-brace-rules": "^0.1.6",
     "eslint-plugin-flowtype": "^8.0.3",
     "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-sonarjs": "^0.19.0",
     "eslint-plugin-unicorn": "^47.0.0",
-    "@bitrix24/eslint-plugin-bitrix24-rules": "^1.0.0"
+    "eslint-plugin-vue": "^9.14.0"
   }
 }

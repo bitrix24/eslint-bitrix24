@@ -9,14 +9,16 @@ module.exports = {
 		'./rules/bitrix.js',
 		'./rules/errors.js',
 		'./rules/es6.js',
-		'./rules/janative.js',
 		'./rules/style.js',
 		'./rules/variables.js',
 
 		'./rules/plugins/brace-rules.js',
 		'./rules/plugins/flowtype.js',
 		'./rules/plugins/import.js',
+		'./rules/plugins/promise.js',
+		'./rules/plugins/sonarjs.js',
 		'./rules/plugins/unicorn.js',
+		'./rules/plugins/vue.js',
 	].map(require.resolve),
 
 	rules: {},

@@ -6,6 +6,14 @@ module.exports = {
 		'es',
 		'@bitrix24/bitrix24-janative',
 	],
+	globals: {
+		jn: 'readonly',
+		env: 'readonly',
+		layout: 'readonly',
+		layoutWidget: 'readonly',
+		result: 'readonly',
+		LayoutComponent: 'readonly',
+	},
 	rules: {
 		'es/no-nullish-coalescing-operators': 'error',
 		'es/no-optional-chaining': 'error',
