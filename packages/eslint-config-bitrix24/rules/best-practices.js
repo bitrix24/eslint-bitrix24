@@ -203,7 +203,7 @@ module.exports = {
 
 		// disallow use of new operator when not part of the assignment or comparison
 		// https://eslint.org/docs/rules/no-new
-		'no-new': 'error',
+		'no-new': 'off',
 
 		// disallow use of new operator for Function object
 		// https://eslint.org/docs/rules/no-new-func
