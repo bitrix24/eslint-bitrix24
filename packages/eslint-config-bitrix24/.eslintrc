@@ -1,6 +1,0 @@
-{
-	"extends": "./index.js",
-	"rules": {
-		"unicorn/no-array-callback-reference": "off"
-	}
-}

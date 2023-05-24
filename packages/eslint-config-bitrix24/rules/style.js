@@ -92,7 +92,7 @@ module.exports = {
 
 		// require function expressions to have a name
 		// https://eslint.org/docs/rules/func-names
-		'func-names': ['warn', 'as-needed'],l
+		'func-names': ['warn', 'as-needed'],
 
 		// enforces use of function declarations or expressions
 		// https://eslint.org/docs/rules/func-style

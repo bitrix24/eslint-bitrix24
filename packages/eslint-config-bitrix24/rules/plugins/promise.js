@@ -7,5 +7,5 @@ module.exports = {
 	],
 	rules: {
 		'promise/always-return': 'off',
-	}
+	},
 };
