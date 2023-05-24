@@ -6,6 +6,6 @@ module.exports = {
 		'plugin:promise/recommended',
 	],
 	rules: {
-
+		'promise/always-return': 'off',
 	}
 };
