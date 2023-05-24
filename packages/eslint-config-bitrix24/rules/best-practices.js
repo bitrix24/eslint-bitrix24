@@ -364,7 +364,7 @@ module.exports = {
 
 		// disallow use of void operator
 		// https://eslint.org/docs/rules/no-void
-		'no-void': 'error',
+		'no-void': ['error', { allowAsStatement: true }],
 
 		// disallow usage of configurable warning terms in comments: e.g. todo
 		// https://eslint.org/docs/rules/no-warning-comments
