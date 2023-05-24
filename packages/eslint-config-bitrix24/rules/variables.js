@@ -41,7 +41,6 @@ module.exports = {
 		'no-undef-init': 'error',
 
 		// https://eslint.org/docs/rules/no-undefined
-		// TODO: enable?
 		'no-undefined': 'off',
 
 		'no-unused-vars': ['error', { vars: 'all', args: 'none', ignoreRestSiblings: true }],
@@ -49,7 +48,7 @@ module.exports = {
 		// disallow use of variables before they are defined
 		'no-use-before-define': 'off',
 
-		'vars-on-top': 'warn',
+		'vars-on-top': 'off',
 
 	},
 };

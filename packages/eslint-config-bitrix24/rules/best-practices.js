@@ -404,10 +404,6 @@ module.exports = {
 		// https://eslint.org/docs/rules/require-unicode-regexp
 		'require-unicode-regexp': 'off',
 
-		// requires to declare all vars on top of their containing scope
-		// https://eslint.org/docs/rules/vars-on-top
-		'vars-on-top': 'error',
-
 		// require immediate function invocation to be wrapped in parentheses
 		// https://eslint.org/docs/rules/wrap-iife.html
 		'wrap-iife': ['error', 'outside', { functionPrototypeMethods: false }],
