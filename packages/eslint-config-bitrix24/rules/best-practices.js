@@ -411,5 +411,9 @@ module.exports = {
 		// require or disallow Yoda conditions
 		// https://eslint.org/docs/rules/yoda
 		'yoda': 'error',
+
+		// require using arrow functions for callbacks
+		// https://eslint.org/docs/latest/rules/prefer-arrow-callback
+		'prefer-arrow-callback': ['error', { 'allowNamedFunctions': true }],
 	},
 };

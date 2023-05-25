@@ -1,14 +1,15 @@
 module.exports = {
 	plugins: [
-		'brace-rules',
+		'@saji/brace-rules',
 	],
 	rules: {
-		'brace-rules/brace-on-same-line': ['error', {
+		'@saji/brace-rules/brace-on-same-line': ['error', {
 			FunctionDeclaration: 'never',
 			FunctionExpression: 'never',
 			ArrowFunctionExpression: 'always',
 			IfStatement: 'never',
 			TryStatement: 'never',
+			CatchClause: 'never',
 			DoWhileStatement: 'never',
 			WhileStatement: 'never',
 			WithStatement: 'never',
@@ -16,6 +17,11 @@ module.exports = {
 			ForInStatement: 'never',
 			ForOfStatement: 'never',
 			SwitchStatement: 'never',
+			ClassDeclaration: 'never',
+			MethodDeclaration: 'never',
+			ExportClass: 'never',
+			ExportClassAnon: 'never',
+			ExportFunctionAnon: 'never',
 		}],
 	},
 };

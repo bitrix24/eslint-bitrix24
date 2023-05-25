@@ -1,4 +1,5 @@
-export class MyClass {
+export class MyClass
+{
 	constructor()
 	{
 		this.prop = 1;

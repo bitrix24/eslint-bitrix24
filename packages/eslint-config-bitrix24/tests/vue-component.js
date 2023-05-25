@@ -9,6 +9,14 @@ export const VueComponent = {
 				b: 1,
 				c: 2,
 			},
+			foo(): number
+			{
+				return 1;
+			},
+
+			foo2: (): number => {
+				return 2;
+			},
 		};
 	},
 
