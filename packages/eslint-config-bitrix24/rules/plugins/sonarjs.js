@@ -7,5 +7,6 @@ module.exports = {
 	],
 	rules: {
 		'sonarjs/no-duplicate-string': 'off',
+		'sonarjs/cognitive-complexity': 'warn',
 	},
 };

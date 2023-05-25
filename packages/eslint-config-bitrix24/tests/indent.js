@@ -44,3 +44,26 @@ class C
 }
 
 new C();
+
+(function() {
+
+function doo(): boolean
+{
+	return true;
+}
+
+let aa = 1;
+let b = 2;
+if (aa > 0)
+{
+	aa++;
+}
+
+if (b > 0)
+{
+	b++;
+}
+
+doo();
+
+}());

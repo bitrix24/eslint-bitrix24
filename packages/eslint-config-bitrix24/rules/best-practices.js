@@ -406,7 +406,7 @@ module.exports = {
 
 		// require immediate function invocation to be wrapped in parentheses
 		// https://eslint.org/docs/rules/wrap-iife.html
-		'wrap-iife': ['error', 'outside', { functionPrototypeMethods: false }],
+		'wrap-iife': ['error', 'any', { functionPrototypeMethods: false }],
 
 		// require or disallow Yoda conditions
 		// https://eslint.org/docs/rules/yoda

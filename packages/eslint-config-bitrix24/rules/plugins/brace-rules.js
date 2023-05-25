@@ -4,8 +4,9 @@ module.exports = {
 	],
 	rules: {
 		'@saji/brace-rules/brace-on-same-line': ['error', {
+			// Vue component object methods (e.g. data()) are determined as FunctionExpression
+			FunctionExpression: 'ignore',
 			FunctionDeclaration: 'never',
-			FunctionExpression: 'never',
 			ArrowFunctionExpression: 'always',
 			IfStatement: 'never',
 			TryStatement: 'never',

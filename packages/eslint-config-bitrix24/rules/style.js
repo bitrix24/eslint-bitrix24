@@ -92,7 +92,7 @@ module.exports = {
 
 		// require function expressions to have a name
 		// https://eslint.org/docs/rules/func-names
-		'func-names': ['warn', 'as-needed'],
+		'func-names': 'off',
 
 		// enforces use of function declarations or expressions
 		// https://eslint.org/docs/rules/func-style
@@ -123,7 +123,7 @@ module.exports = {
 		'indent': ['error', 'tab', {
 			SwitchCase: 1,
 			VariableDeclarator: 1,
-			outerIIFEBody: 1,
+			outerIIFEBody: 'off',
 			// MemberExpression: null,
 			FunctionDeclaration: {
 				parameters: 1,
@@ -337,7 +337,7 @@ module.exports = {
 		// deprecated in favor of func-call-spacing
 		'no-spaced-func': 'off',
 
-		'no-tabs': ['error', { allowIndentationTabs: true }],
+		'no-tabs': 'off',
 
 		// disallow the use of ternary operators
 		'no-ternary': 'off',
@@ -413,7 +413,11 @@ module.exports = {
 
 		// Require or disallow padding lines between statements
 		// https://eslint.org/docs/rules/padding-line-between-statements
-		'padding-line-between-statements': 'off',
+		'padding-line-between-statements': [
+			'error',
+			{ blankLine: 'always', prev: '*', next: 'return' },
+			{ blankLine: 'always', prev: 'block-like', next: 'block-like' },
+		],
 
 		// Disallow the use of Math.pow in favor of the ** operator
 		// https://eslint.org/docs/rules/prefer-exponentiation-operator
