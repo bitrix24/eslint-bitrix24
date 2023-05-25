@@ -9,4 +9,9 @@ export class MyClass
 	{
 		return this.prop;
 	}
+
+	show(): number
+	{
+		return 2;
+	}
 }
