@@ -15,6 +15,13 @@ module.exports = {
 		LayoutComponent: 'readonly',
 	},
 	rules: {
+		'no-param-reassign': ['error', {
+			props: true,
+			ignorePropertyModificationsFor: [
+				'module',
+			],
+		}],
+
 		'es/no-nullish-coalescing-operators': 'error',
 		'es/no-optional-chaining': 'error',
 
