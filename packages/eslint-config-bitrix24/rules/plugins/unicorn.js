@@ -67,7 +67,7 @@ module.exports = {
 		'unicorn/prefer-string-starts-ends-with': 'error',
 		'unicorn/prefer-string-trim-start-end': 'error',
 		'unicorn/prefer-switch': 'error',
-		'unicorn/prefer-ternary': ['error', 'only-single-line'],
+		'unicorn/prefer-ternary': 'off',
 		'unicorn/prefer-type-error': 'error',
 		'unicorn/require-array-join-separator': 'error',
 		'unicorn/require-number-to-fixed-digits-argument': 'error',
