@@ -1,10 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const repoPath = path.join(
-	__dirname.split(path.join('modules', 'main'))[0],
-	'modules',
-);
+const repoPath = __dirname.split('node_modules').at(0);
 const aliasesConfigPath = path.join(repoPath, 'webpack.aliases.js');
 
 module.exports = {
