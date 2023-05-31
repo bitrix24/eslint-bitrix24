@@ -71,7 +71,16 @@ module.exports = {
 		'unicorn/prefer-type-error': 'error',
 		'unicorn/require-array-join-separator': 'error',
 		'unicorn/require-number-to-fixed-digits-argument': 'error',
-		'unicorn/template-indent': 'error',
+		'unicorn/template-indent': [
+			'error',
+			{
+				tags: [],
+				functions: [],
+				selectors: [
+					'TemplateLiteral',
+				],
+			},
+		],
 		'unicorn/throw-new-error': 'error',
 
 		// ToDo discuss these rules later
