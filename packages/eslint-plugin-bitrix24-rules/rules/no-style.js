@@ -4,8 +4,8 @@ module.exports = {
 		schema: [],
 		fixable: null,
 		messages: {
-			moduleError: "Use `Dom.style` from `main.core` for works with element styles \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#dom-style",
-			scriptError: "Use `BX.Dom.style` from `main.core` for works with element styles \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#dom-style",
+			moduleError: "Use `Dom.style` from `main.core` to change element styles \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#dom-style",
+			scriptError: "Use `BX.Dom.style` from `main.core` to change element styles \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#dom-style",
 		},
 	},
 	create(context) {

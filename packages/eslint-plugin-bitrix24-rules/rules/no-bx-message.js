@@ -1,23 +1,26 @@
 module.exports = {
 	meta: {
-		type: "problem",
+		type: 'problem',
 		schema: [],
 		fixable: null,
 		messages: {
-			moduleError: "Use `Loc` functions from `main.core` for works with messages \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#loc",
-			scriptError: "Use `BX.Loc` functions from `main.core` for works with messages \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#loc",
+			moduleError: 'Use `Loc` functions from `main.core` to get language-sensitive messages \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#loc',
+			scriptError: 'Use `BX.Loc` functions from `main.core` to get language-sensitive messages \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#loc',
 		},
 	},
-	create(context) {
-		let sourceType = "module";
+	create(context)
+	{
+		let sourceType = 'module';
 		return {
-			Program(node) {
+			Program(node)
+			{
 				sourceType = node.sourceType;
 			},
-			MemberExpression(node) {
+			MemberExpression(node)
+			{
 				if (
-					node.object.name === "BX"
-					&& node.property.name === "message"
+					node.object.name === 'BX'
+					&& node.property.name === 'message'
 				)
 				{
 					context.report({

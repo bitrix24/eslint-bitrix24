@@ -4,8 +4,8 @@ module.exports = {
 		schema: [],
 		fixable: null,
 		messages: {
-			nullError: "Use Type.isNull() from `main.core` for compare with null",
-			undefinedError: "Use Type.isUndefined() from `main.core` for compare with undefined",
+			nullError: "Use Type.isNull() from `main.core` to compare an operand with null",
+			undefinedError: "Use Type.isNull() from `main.core` to compare an operand with undefined",
 		},
 	},
 	create(context) {

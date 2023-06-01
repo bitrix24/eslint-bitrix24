@@ -4,8 +4,8 @@ module.exports = {
 		schema: [],
 		fixable: null,
 		messages: {
-			moduleError: "Use `Dom` functions from `main.core` for works with DOM tree. \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#dom",
-			scriptError: "Use `BX.Dom` functions from `main.core` for works with DOM tree. \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#dom",
+			moduleError: "Use `Dom` functions from `main.core` to manipulate element's children. \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#dom",
+			scriptError: "Use `BX.Dom` functions from `main.core` to manipulate element's children. \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#dom",
 		},
 	},
 	create(context) {
