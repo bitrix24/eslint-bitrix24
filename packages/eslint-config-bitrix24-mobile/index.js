@@ -22,9 +22,6 @@ module.exports = {
 			],
 		}],
 
-		'es/no-nullish-coalescing-operators': 'error',
-		'es/no-optional-chaining': 'error',
-
 		'@bitrix24/bitrix24-janative/no-global-require': 'error',
 		'@bitrix24/bitrix24-janative/no-static-variable-in-class': 'error',
 
