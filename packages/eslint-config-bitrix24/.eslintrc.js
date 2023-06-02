@@ -4,4 +4,8 @@ module.exports = {
 		'quote-props': 'off',
 		'unicorn/no-array-callback-reference': 'off',
 	},
+	globals: {
+		module: 'readonly',
+		require: 'readonly',
+	},
 };

@@ -46,7 +46,6 @@ class C
 new C();
 
 (function() {
-
 function doo(): boolean
 {
 	return true;
@@ -65,5 +64,4 @@ if (b > 0)
 }
 
 doo();
-
 }());

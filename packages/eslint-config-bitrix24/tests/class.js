@@ -7,6 +7,16 @@ export class MyClass
 
 	foo(): number
 	{
+		if (window.xxx)
+		{
+			return window.xxx;
+		}
+
+		if (BX.MyClass)
+		{
+			return 1;
+		}
+
 		return this.prop;
 	}
 
