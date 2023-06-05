@@ -441,7 +441,7 @@ module.exports = {
 		// require quotes around object literal property names
 		// https://eslint.org/docs/rules/quote-props.html
 		'quote-props': ['error', 'as-needed', {
-			keywords: true,
+			keywords: false,
 			unnecessary: true,
 			numbers: false,
 		}],
