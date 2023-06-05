@@ -45,6 +45,16 @@ module.exports = {
 		Video: 'readonly',
 		View: 'readonly',
 		WebView: 'readonly',
+		PageManager: 'readonly',
+		currentDomain: 'readonly',
+		component: 'readonly',
+		dialogs: 'readonly',
+		helpdesk: 'readonly',
+		jnComponent: 'readonly',
+		viewer: 'readonly',
+		requireLazy: 'readonly',
+		jnExtensionData: 'readonly',
+		navigator: 'readonly',
 	},
 	rules: {
 		'no-param-reassign': ['error', {
