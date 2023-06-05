@@ -49,7 +49,7 @@ module.exports = {
 
 		// require the use of === and !==
 		// https://eslint.org/docs/rules/eqeqeq
-		'eqeqeq': ['error', 'always', { null: 'ignore' }],
+		'eqeqeq': 'error',
 
 		// Require grouped accessor pairs in object literals and classes
 		// https://eslint.org/docs/rules/grouped-accessor-pairs
@@ -109,7 +109,7 @@ module.exports = {
 
 		// disallow comparisons to null without a type-checking operator
 		// https://eslint.org/docs/rules/no-eq-null
-		'no-eq-null': 'off',
+		'no-eq-null': 'error',
 
 		// disallow use of eval()
 		// https://eslint.org/docs/rules/no-eval
@@ -145,16 +145,11 @@ module.exports = {
 
 		// disallow implicit type conversions
 		// https://eslint.org/docs/rules/no-implicit-coercion
-		'no-implicit-coercion': ['off', {
-			boolean: false,
-			number: true,
-			string: true,
-			allow: [],
-		}],
+		'no-implicit-coercion': ['error', { disallowTemplateShorthand: true }],
 
 		// disallow var and named functions in global scope
 		// https://eslint.org/docs/rules/no-implicit-globals
-		'no-implicit-globals': 'off',
+		'no-implicit-globals': ['error', { 'lexicalBindings': true }],
 
 		// disallow use of eval()-like methods
 		// https://eslint.org/docs/rules/no-implied-eval
@@ -162,7 +157,7 @@ module.exports = {
 
 		// disallow this keywords outside of classes or class-like objects
 		// https://eslint.org/docs/rules/no-invalid-this
-		'no-invalid-this': 'off',
+		'no-invalid-this': 'error',
 
 		// disallow usage of __iterator__ property
 		// https://eslint.org/docs/rules/no-iterator
@@ -326,7 +321,7 @@ module.exports = {
 
 		// disallow unmodified conditions of loops
 		// https://eslint.org/docs/rules/no-unmodified-loop-condition
-		'no-unmodified-loop-condition': 'off',
+		'no-unmodified-loop-condition': 'error',
 
 		// disallow usage of expressions in statement position
 		// https://eslint.org/docs/rules/no-unused-expressions
@@ -342,7 +337,7 @@ module.exports = {
 
 		// disallow unnecessary .call() and .apply()
 		// https://eslint.org/docs/rules/no-useless-call
-		'no-useless-call': 'off',
+		'no-useless-call': 'error',
 
 		// Disallow unnecessary catch clauses
 		// https://eslint.org/docs/rules/no-useless-catch

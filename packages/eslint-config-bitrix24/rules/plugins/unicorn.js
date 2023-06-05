@@ -82,6 +82,7 @@ module.exports = {
 			},
 		],
 		'unicorn/throw-new-error': 'error',
+		'unicorn/prefer-string-replace-all': 'error',
 
 		// ToDo discuss these rules later
 		// 'unicorn/prefer-number-properties': 'off',
@@ -96,8 +97,5 @@ module.exports = {
 
 		// ToDo make custom rule
 		// 'unicorn/no-invalid-remove-event-listener': 'off',
-
-		// ToDo enable this by default when iOS >= 13.4
-		// 'unicorn/prefer-string-replace-all': 'off',
 	},
 };

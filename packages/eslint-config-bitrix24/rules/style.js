@@ -197,7 +197,7 @@ module.exports = {
 		}],
 
 		// specify the maximum depth that blocks can be nested
-		'max-depth': ['off', 4],
+		'max-depth': ['error', 5],
 
 		// specify the maximum length of a line in your program
 		// https://eslint.org/docs/rules/max-len
@@ -219,8 +219,8 @@ module.exports = {
 
 		// enforce a maximum function length
 		// https://eslint.org/docs/rules/max-lines-per-function
-		'max-lines-per-function': ['off', {
-			max: 50,
+		'max-lines-per-function': ['error', {
+			max: 100,
 			skipBlankLines: true,
 			skipComments: true,
 			IIFEs: true,
