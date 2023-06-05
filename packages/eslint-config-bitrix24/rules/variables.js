@@ -46,7 +46,7 @@ module.exports = {
 		'no-unused-vars': ['error', { vars: 'all', args: 'none', ignoreRestSiblings: true }],
 
 		// disallow use of variables before they are defined
-		'no-use-before-define': ['error', { functions: false, classes: true, variables: true }],
+		'no-use-before-define': ['off', { functions: false, classes: true, variables: true }],
 
 		'vars-on-top': 'off',
 
