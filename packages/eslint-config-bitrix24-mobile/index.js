@@ -64,6 +64,7 @@ module.exports = {
 			],
 		}],
 
+		'max-lines-per-function': 'off',
 		'@bitrix24/bitrix24-janative/no-global-require': 'error',
 		'@bitrix24/bitrix24-janative/no-static-variable-in-class': 'error',
 
