@@ -55,6 +55,8 @@ module.exports = {
 		requireLazy: 'readonly',
 		jnExtensionData: 'readonly',
 		navigator: 'readonly',
+		JNEventEmitter: 'readonly',
+		jnexport: 'readonly',
 	},
 	rules: {
 		'no-param-reassign': ['error', {
