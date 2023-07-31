@@ -9,7 +9,6 @@ module.exports = {
 		'promise/always-return': 'off',
 		'promise/catch-or-return': ['error', {
 			allowFinally: true,
-			terminationMethod: ['catch', 'finally'],
 		}],
 	},
 };
