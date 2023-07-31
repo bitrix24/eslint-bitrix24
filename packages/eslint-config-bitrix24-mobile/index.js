@@ -57,6 +57,7 @@ module.exports = {
 		navigator: 'readonly',
 		JNEventEmitter: 'readonly',
 		jnexport: 'readonly',
+		PropTypes: 'readonly',
 	},
 	rules: {
 		'no-param-reassign': ['error', {
