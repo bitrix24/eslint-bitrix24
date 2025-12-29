@@ -16,5 +16,6 @@ module.exports = {
 		'no-private': require('./rules/no-private'),
 		'no-short-class-property': require('./rules/no-short-class-property'),
 		'need-alias': require('./rules/need-alias'),
+		'sort-extension-imports': require('./rules/sort-extension-imports'),
 	},
 };
