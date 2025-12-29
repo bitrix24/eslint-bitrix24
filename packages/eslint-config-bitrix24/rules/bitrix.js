@@ -16,7 +16,7 @@ module.exports = {
 		'@bitrix24/bitrix24-rules/no-eventemitter-without-namespace': 'error',
 		'@bitrix24/bitrix24-rules/no-bx': 'error',
 		'@bitrix24/bitrix24-rules/need-alias': 'warn',
-		'@bitrix24/bitrix24-rules/sort-extension-imports': ['error', {
+		'@bitrix24/bitrix24-rules/sort-extension-imports': ['warn', {
 			'newlines-between': 'always-and-inside-groups',
 			'optional-newlines-for-single-imports': true,
 		}],
