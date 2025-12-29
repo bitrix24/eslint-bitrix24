@@ -1,6 +1,6 @@
 {
 	"name": "@bitrix24/eslint-config-bitrix24-mobile",
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"description": "ESLint rules for the Bitrix24 Mobile JavaScript Style Guide",
 	"main": "index.js",
 	"repository": {

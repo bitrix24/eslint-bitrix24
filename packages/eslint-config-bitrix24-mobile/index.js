@@ -52,7 +52,6 @@ module.exports = {
 		helpdesk: 'readonly',
 		jnComponent: 'readonly',
 		viewer: 'readonly',
-		requireLazy: 'readonly',
 		jnExtensionData: 'readonly',
 		navigator: 'readonly',
 		JNEventEmitter: 'readonly',
