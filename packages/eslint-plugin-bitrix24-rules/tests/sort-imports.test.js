@@ -169,6 +169,33 @@ import { Logger } from 'im.v2.lib.logger';
 		},
 		{
 			code: `
+import { Local } from './local';
+import { Type } from 'main.core';
+import { type Cache } from 'main.core.cache';
+
+export type Foo = {};
+
+import './style.css';
+`,
+			output: `
+import { Type } from 'main.core';
+import { type Cache } from 'main.core.cache';
+
+import { Local } from './local';
+
+import './style.css';
+
+export type Foo = {};
+`,
+			filename: 'test/src/file.js',
+			errors: [
+				{
+					message: /Imports are not properly sorted/
+				}
+			]
+		},
+		{
+			code: `
 import { DomUtil } from './dom';
 import { Type } from 'main.core';
 `,
