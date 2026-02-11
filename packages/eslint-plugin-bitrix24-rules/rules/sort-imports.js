@@ -94,13 +94,33 @@ module.exports = {
 		return {
 			Program(node)
 			{
-				const imports = node.body.filter(n => n.type === 'ImportDeclaration');
+				const currentModule = getCurrentModule(filename);
+				const imports = node.body.filter(statement => statement.type === 'ImportDeclaration');
 				if (imports.length === 0)
 				{
 					return;
 				}
 
-				const currentModule = getCurrentModule(filename);
+				let seenImport = false;
+				let seenNonImportAfterImport = false;
+				let hasImportAfterNonImport = false;
+
+				node.body.forEach(statement => {
+					if (statement.type === 'ImportDeclaration')
+					{
+						if (seenNonImportAfterImport)
+						{
+							hasImportAfterNonImport = true;
+						}
+						seenImport = true;
+						return;
+					}
+
+					if (seenImport)
+					{
+						seenNonImportAfterImport = true;
+					}
+				});
 
 				const importGroups = imports.map(imp => {
 					const type = getImportType(imp, currentModule);
@@ -123,6 +143,11 @@ module.exports = {
 						hasOrderIssue = true;
 						break;
 					}
+				}
+
+				if (hasImportAfterNonImport)
+				{
+					hasOrderIssue = true;
 				}
 
 				if (hasOrderIssue)
@@ -165,8 +190,36 @@ module.exports = {
 								}
 							});
 
-							const range = [firstImport.range[0], lastImport.range[1]];
-							return fixer.replaceTextRange(range, newImports.join('\n'));
+							const rangeStart = firstImport.range[0];
+							const rangeEnd = lastImport.range[1];
+							const sortedImportText = newImports.join('\n');
+
+							const importRanges = imports
+								.map(imp => imp.range)
+								.sort((a, b) => a[0] - b[0]);
+
+							let nonImportText = '';
+							let cursor = rangeStart;
+
+							importRanges.forEach(([start, end]) => {
+								if (start > cursor)
+								{
+									nonImportText += sourceCode.text.slice(cursor, start);
+								}
+								cursor = end;
+							});
+
+							if (cursor < rangeEnd)
+							{
+								nonImportText += sourceCode.text.slice(cursor, rangeEnd);
+							}
+
+							const trimmedNonImport = nonImportText.trim();
+							const replacement = trimmedNonImport.length > 0
+								? `${sortedImportText}\n\n${trimmedNonImport}`
+								: sortedImportText;
+
+							return fixer.replaceTextRange([rangeStart, rangeEnd], replacement);
 						}
 					});
 					return;
