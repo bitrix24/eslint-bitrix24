@@ -157,6 +157,20 @@ import { type T } from 'main.core';
 					message: /Use inline type syntax/
 				}
 			]
+		},
+		{
+			code: `
+import { MemoryCache } from 'main.core.cache';
+import { type BaseCache } from 'main.core.cache';
+`,
+			output: `
+import { MemoryCache, type BaseCache } from 'main.core.cache';
+`,
+			errors: [
+				{
+					message: /Use inline type syntax/
+				}
+			]
 		}
 	]
 });

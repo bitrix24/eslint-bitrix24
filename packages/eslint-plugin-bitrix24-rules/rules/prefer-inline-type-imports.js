@@ -26,6 +26,39 @@ module.exports = {
 			return hasDefaultSpecifier || hasNamespaceSpecifier;
 		}
 
+		function isInlineTypeOnlyImport(imp)
+		{
+			if (imp.importKind === 'type')
+			{
+				return false;
+			}
+
+			const hasDefaultSpecifier = imp.specifiers.some(s => s.type === 'ImportDefaultSpecifier');
+			const hasNamespaceSpecifier = imp.specifiers.some(s => s.type === 'ImportNamespaceSpecifier');
+			if (hasDefaultSpecifier || hasNamespaceSpecifier)
+			{
+				return false;
+			}
+
+			const importSpecifiers = imp.specifiers.filter(s => s.type === 'ImportSpecifier');
+			if (importSpecifiers.length === 0)
+			{
+				return false;
+			}
+
+			return importSpecifiers.every(spec => spec.importKind === 'type');
+		}
+
+		function getTypeSpecifierText(spec)
+		{
+			if (spec.importKind === 'type')
+			{
+				return sourceCode.getText(spec);
+			}
+
+			return `type ${sourceCode.getText(spec)}`;
+		}
+
 		function groupImportsBySource(imports)
 		{
 			const groups = new Map();
@@ -47,6 +80,10 @@ module.exports = {
 					{
 						groups.get(source).types.push(imp);
 					}
+				}
+				else if (isInlineTypeOnlyImport(imp))
+				{
+					groups.get(source).types.push(imp);
 				}
 				else
 				{
@@ -103,7 +140,7 @@ module.exports = {
 						hasStandaloneTypeImports = true;
 						const source = imp.source.value;
 						const sameSourceImports = sourceToImports.get(source) || [];
-						const regularImport = sameSourceImports.find(i => i.importKind !== 'type');
+						const regularImport = sameSourceImports.find(i => i.importKind !== 'type' && !isInlineTypeOnlyImport(i));
 
 						context.report({
 							node: imp,
@@ -117,7 +154,7 @@ module.exports = {
 									imp.specifiers.forEach(spec => {
 										if (spec.type === 'ImportSpecifier')
 										{
-											typeSpecifiers.push(`type ${sourceCode.getText(spec)}`);
+											typeSpecifiers.push(getTypeSpecifierText(spec));
 										}
 									});
 								}
@@ -203,7 +240,7 @@ module.exports = {
 					mergingIssues.forEach(issue => {
 						context.report({
 							node: issue.types[0],
-							message: `Type imports from '${issue.source}' should be merged with regular imports using inline type syntax.`,
+							message: `Use inline type syntax to merge type imports from '${issue.source}' with regular imports.`,
 							fix(fixer)
 							{
 								const regularNode = issue.regular[0];
@@ -217,7 +254,7 @@ module.exports = {
 										typeNode.specifiers.forEach(spec => {
 											if (spec.type === 'ImportSpecifier')
 											{
-												typeSpecifiers.push(`type ${sourceCode.getText(spec)}`);
+												typeSpecifiers.push(getTypeSpecifierText(spec));
 											}
 										});
 									}
