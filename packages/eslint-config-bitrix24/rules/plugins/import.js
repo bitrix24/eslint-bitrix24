@@ -9,5 +9,6 @@ module.exports = {
 		// https://github.com/import-js/eslint-plugin-import#rules
 		'import/prefer-default-export': 'off',
 		'import/no-unresolved': 'off',
+		'import/no-default-export': 'warn',
 	},
 };
