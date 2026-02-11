@@ -1,6 +1,6 @@
 {
   "name": "@bitrix24/eslint-plugin-bitrix24-rules",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "ESLint rules for the Bitrix24 JavaScript style guide",
   "main": "index.js",
   "repository": {
@@ -10,10 +10,19 @@
   "keywords": [
     "eslint"
   ],
+  "scripts": {
+    "test": "mocha tests/**/*.test.js"
+  },
   "author": "Bitrix24",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/bitrix24/eslint-bitrix24/issues"
   },
-  "homepage": "https://github.com/bitrix24/eslint-bitrix24#readme"
+  "homepage": "https://github.com/bitrix24/eslint-bitrix24#readme",
+  "devDependencies": {
+    "mocha": "^11.7.5",
+    "@babel/core": "^7.28.5",
+    "@babel/eslint-parser": "^7.28.5",
+    "eslint": "^8.57.1"
+	}
 }
