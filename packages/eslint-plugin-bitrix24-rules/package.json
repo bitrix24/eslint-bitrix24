@@ -1,6 +1,6 @@
 {
   "name": "@bitrix24/eslint-plugin-bitrix24-rules",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "ESLint rules for the Bitrix24 JavaScript style guide",
   "main": "index.js",
   "repository": {
@@ -24,5 +24,5 @@
     "@babel/core": "^7.28.5",
     "@babel/eslint-parser": "^7.28.5",
     "eslint": "^8.57.1"
-	}
+  }
 }
