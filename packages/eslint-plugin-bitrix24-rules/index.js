@@ -17,5 +17,6 @@ module.exports = {
 		'no-short-class-property': require('./rules/no-short-class-property'),
 		'need-alias': require('./rules/need-alias'),
 		'sort-imports': require('./rules/sort-imports'),
+		'prefer-inline-type-imports': require('./rules/prefer-inline-type-imports'),
 	},
 };

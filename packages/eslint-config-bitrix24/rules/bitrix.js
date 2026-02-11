@@ -17,6 +17,7 @@ module.exports = {
 		'@bitrix24/bitrix24-rules/no-bx': 'error',
 		'@bitrix24/bitrix24-rules/need-alias': 'warn',
 		'@bitrix24/bitrix24-rules/sort-imports': 'warn',
+		'@bitrix24/bitrix24-rules/prefer-inline-type-imports': 'warn',
 	},
 	globals: {
 		BX: 'readonly',
