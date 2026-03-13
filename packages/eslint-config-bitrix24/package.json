@@ -1,8 +1,12 @@
 {
   "name": "@bitrix24/eslint-config-bitrix24",
-  "version": "1.0.12",
+  "version": "1.1.0",
   "description": "ESLint shareable config for the Bitrix24 JavaScript style guide",
   "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./flat": "./flat.js"
+  },
   "scripts": {
     "lint": "eslint ."
   },
@@ -20,7 +24,7 @@
   },
   "homepage": "https://github.com/bitrix24/eslint-bitrix24#readme",
   "peerDependencies": {
-    "eslint": "^8.41.0"
+    "eslint": "^8.41.0 || ^9.0.0"
   },
   "dependencies": {
     "@babel/core": "^7.21.8",
@@ -28,12 +32,12 @@
     "@babel/plugin-syntax-flow": "^7.21.4",
     "@bitrix24/eslint-plugin-bitrix24-rules": "^1.0.0",
     "@saji/eslint-plugin-brace-rules": "^0.2.1",
-    "eslint": "^8.41.0",
     "eslint-plugin-flowtype": "^8.0.3",
     "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-promise": "^6.1.1",
-    "eslint-plugin-sonarjs": "^0.19.0",
-    "eslint-plugin-unicorn": "^47.0.0",
-    "eslint-plugin-vue": "^9.14.0"
+    "eslint-plugin-promise": "^6.1.1 || ^7.0.0",
+    "eslint-plugin-sonarjs": "^0.19.0 || ^1.0.0",
+    "eslint-plugin-unicorn": "^47.0.0 || ^56.0.0",
+    "eslint-plugin-vue": "^9.14.0",
+    "globals": "^15.0.0"
   }
 }
