@@ -24,7 +24,7 @@ module.exports = [
 		languageOptions: {
 			parser: babelParser,
 			sourceType: 'module',
-			ecmaVersion: 2022,
+			ecmaVersion: 'latest',
 			parserOptions: {
 				requireConfigFile: false,
 				babelOptions: {
