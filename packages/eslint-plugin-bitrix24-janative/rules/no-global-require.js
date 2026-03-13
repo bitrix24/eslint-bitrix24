@@ -11,9 +11,13 @@ module.exports = {
 
 	create(context)
 	{
+		const sourceCode = context.sourceCode || context.getSourceCode();
+
 		function checkRequireUsage(node)
 		{
-			const scope = context.getScope();
+			const scope = sourceCode.getScope
+				? sourceCode.getScope(node)
+				: context.getScope();
 
 			const requireArg = scope.variables.find(variable => {
 				return variable.name === 'require';

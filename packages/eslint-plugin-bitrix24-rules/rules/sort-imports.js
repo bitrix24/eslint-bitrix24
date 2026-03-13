@@ -12,8 +12,8 @@ module.exports = {
 
 	create(context)
 	{
-		const sourceCode = context.getSourceCode();
-		const filename = context.getFilename();
+		const sourceCode = context.sourceCode || context.getSourceCode();
+		const filename = context.filename || context.getFilename();
 		function getCurrentModule(filepath)
 		{
 			const match = filepath.match(/\/([^\/]+)\/install\/js\//);
