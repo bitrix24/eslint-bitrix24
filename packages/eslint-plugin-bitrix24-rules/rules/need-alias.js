@@ -40,7 +40,7 @@ module.exports = {
 				{
 					context.report({
 						node: node.source,
-						message: `Add '${moduleName}' to webpack.aliases.js and resave webpack settings in PhpStorm Preferences. \nSee: http://docs.bx/R&D/bitrix_dev/javascript-dev/bitrix_cli/quick_start#page_Nastroyte_IntelliSense`,
+						message: `Add '${moduleName}' to webpack.aliases.js and resave webpack settings in PhpStorm Preferences`,
 					});
 				}
 			},

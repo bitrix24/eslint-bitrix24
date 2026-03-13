@@ -4,8 +4,8 @@ module.exports = {
 		schema: [],
 		fixable: null,
 		messages: {
-			moduleError: "Use `Dom` functions from `main.core` to manipulate an element's list of classes \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#dom",
-			scriptError: "Use `BX.Dom` functions from `main.core` to manipulate an element's list of classes \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#dom",
+			moduleError: "Use `Dom` functions from `main.core` to manipulate an element's list of classes",
+			scriptError: "Use `BX.Dom` functions from `main.core` to manipulate an element's list of classes",
 		},
 	},
 	create(context) {

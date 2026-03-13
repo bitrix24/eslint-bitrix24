@@ -4,8 +4,8 @@ module.exports = {
 		schema: [],
 		fixable: null,
 		messages: {
-			moduleError: "Use `Event.bind` and `Event.unbind` from `main.core` to add and remove DOM events respectively. Docs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#event",
-			scriptError: "Use `Event.bind` and `Event.unbind` from `main.core` to add and remove DOM events respectively. Docs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#event",
+			moduleError: "Use `Event.bind` and `Event.unbind` from `main.core` to add and remove DOM events respectively",
+			scriptError: "Use `Event.bind` and `Event.unbind` from `main.core` to add and remove DOM events respectively",
 		},
 	},
 	create(context) {
