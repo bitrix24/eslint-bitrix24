@@ -1,14 +1,14 @@
-module.exports = {
-	plugins: [
-		'promise',
-	],
-	extends: [
-		'plugin:promise/recommended',
-	],
-	rules: {
-		'promise/always-return': 'off',
-		'promise/catch-or-return': ['error', {
-			allowFinally: true,
-		}],
-	},
+export const rules = {
+	'promise/always-return': 'off',
+	'promise/no-return-wrap': 'error',
+	'promise/param-names': 'error',
+	'promise/catch-or-return': ['error', { allowFinally: true }],
+	'promise/no-native': 'off',
+	'promise/no-nesting': 'warn',
+	'promise/no-promise-in-callback': 'warn',
+	'promise/no-callback-in-promise': 'warn',
+	'promise/avoid-new': 'off',
+	'promise/no-new-statics': 'error',
+	'promise/no-return-in-finally': 'warn',
+	'promise/valid-params': 'warn',
 };

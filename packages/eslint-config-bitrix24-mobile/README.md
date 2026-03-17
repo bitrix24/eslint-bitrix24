@@ -2,59 +2,57 @@
 
 Shareable ESLint config for Bitrix24 mobile (JaNative) projects.
 
-Extends [@bitrix24/eslint-config-bitrix24](https://github.com/bitrix24/eslint-bitrix24/tree/main/packages/eslint-config-bitrix24) with mobile-specific globals and rule overrides.
+Provides mobile-specific globals and rule overrides on top of [@bitrix24/eslint-config-bitrix24](https://github.com/bitrix24/eslint-bitrix24/tree/main/packages/eslint-config-bitrix24).
 
-Supports ESLint 8 (legacy) and ESLint 9 (flat config).
+Requires ESLint 9 (flat config). For ESLint 8, use v1.x of this package.
 
 ## Installation
 
 ```bash
-npm install --save-dev eslint @bitrix24/eslint-config-bitrix24-mobile
+npm install --save-dev eslint @bitrix24/eslint-config-bitrix24 @bitrix24/eslint-config-bitrix24-mobile
 ```
 
 ## Usage
 
-### ESLint 9 (Flat Config)
+### Preset (recommended)
 
-Apply the full config (base + mobile) to the entire project:
+The default export applies mobile overrides to `**/mobileapp/**` files:
 
 ```js
-import bitrix24MobileConfig from '@bitrix24/eslint-config-bitrix24-mobile/flat';
+import bitrix24 from '@bitrix24/eslint-config-bitrix24';
+import bitrix24Mobile from '@bitrix24/eslint-config-bitrix24-mobile';
 
 export default [
-    ...bitrix24MobileConfig,
+    { ignores: ['**/dist/', '**/*.bundle.js'] },
+    ...bitrix24,
+    ...bitrix24Mobile,
 ];
 ```
 
-Or apply mobile overrides only to specific files (when the base config is already included):
+### Custom file patterns
+
+Use `./overrides` to apply mobile rules to specific files:
 
 ```js
-import bitrix24Config from '@bitrix24/eslint-config-bitrix24/flat';
-import bitrix24MobileConfig from '@bitrix24/eslint-config-bitrix24-mobile/flat';
+import bitrix24 from '@bitrix24/eslint-config-bitrix24';
+import bitrix24MobileOverrides from '@bitrix24/eslint-config-bitrix24-mobile/overrides';
 
 export default [
-    ...bitrix24Config,
-
-    {
-        files: ['**/install/mobileapp/**/*.js'],
-        ...bitrix24MobileConfig.overrides,
-    },
+    ...bitrix24,
+    { files: ['**/mobile/**/*.js'], ...bitrix24MobileOverrides },
 ];
 ```
 
-### ESLint 8 (Legacy)
+## Exports
 
-`.eslintrc.json`:
+| Export | Type | Description |
+|---|---|---|
+| `.` | array (preset) | Mobile overrides for `**/mobileapp/**` files |
+| `./overrides` | object | Mobile globals + janative rules + relaxed web rules (no `files`) |
 
-```json
-{
-    "extends": ["@bitrix24/eslint-config-bitrix24-mobile"]
-}
-```
+## What's included
 
-## What's Included
-
-On top of the base Bitrix24 config, this adds:
+On top of the base Bitrix24 config:
 
 - JaNative global variables (`jn`, `Application`, `PageManager`, UI components, etc.)
 - [@bitrix24/eslint-plugin-bitrix24-janative](https://github.com/bitrix24/eslint-bitrix24/tree/main/packages/eslint-plugin-bitrix24-janative) rules

@@ -1,5 +1,4 @@
-module.exports = {
-	rules: {
+export const rules = {
 		// enforce line breaks after opening and before closing array brackets
 		// https://eslint.org/docs/rules/array-bracket-newline
 		// TODO: enable? semver-major
@@ -522,5 +521,4 @@ module.exports = {
 		// require regex literals to be wrapped in parentheses
 		'wrap-regex': 'off',
 
-	},
 };

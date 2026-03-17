@@ -1,7 +1,7 @@
-const bitrix24Config = require('@bitrix24/eslint-config-bitrix24/flat');
-const janativePlugin = require('@bitrix24/eslint-plugin-bitrix24-janative');
+import janativePlugin from '@bitrix24/eslint-plugin-bitrix24-janative';
 
-const mobileOverrides = {
+export default {
+	name: 'bitrix24-mobile/overrides',
 	plugins: {
 		'@bitrix24/bitrix24-janative': janativePlugin,
 	},
@@ -80,6 +80,3 @@ const mobileOverrides = {
 		'@bitrix24/bitrix24-rules/no-bx': 'off',
 	},
 };
-
-module.exports = [...bitrix24Config, mobileOverrides];
-module.exports.overrides = mobileOverrides;

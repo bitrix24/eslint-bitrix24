@@ -2,6 +2,8 @@
 
 ESLint shareable configs and plugins for the Bitrix24 JavaScript style guide.
 
+Requires ESLint 9 (flat config). For ESLint 8, use v1.x of the config packages.
+
 ## Packages
 
 | Package | Description |
@@ -20,22 +22,32 @@ npm install --save-dev eslint @bitrix24/eslint-config-bitrix24
 `eslint.config.js`:
 
 ```js
-import bitrix24Config from '@bitrix24/eslint-config-bitrix24/flat';
+import bitrix24 from '@bitrix24/eslint-config-bitrix24';
 
 export default [
-    ...bitrix24Config,
+    { ignores: ['**/dist/', '**/*.bundle.js'] },
+    ...bitrix24,
 ];
 ```
 
-## ESLint 8 (Legacy)
+With mobile support:
 
-For ESLint 8 with the legacy `.eslintrc` format, use the default export:
-
-```json
-{
-    "extends": ["@bitrix24/eslint-config-bitrix24"]
-}
+```bash
+npm install --save-dev @bitrix24/eslint-config-bitrix24-mobile
 ```
+
+```js
+import bitrix24 from '@bitrix24/eslint-config-bitrix24';
+import bitrix24Mobile from '@bitrix24/eslint-config-bitrix24-mobile';
+
+export default [
+    { ignores: ['**/dist/', '**/*.bundle.js'] },
+    ...bitrix24,
+    ...bitrix24Mobile,
+];
+```
+
+See individual package READMEs for granular exports and customization options.
 
 ## License
 
