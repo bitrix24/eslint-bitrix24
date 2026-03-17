@@ -1,5 +1,4 @@
-module.exports = {
-	rules: {
+export const rules = {
 		// enforces getter/setter pairs in objects
 		// https://eslint.org/docs/rules/accessor-pairs
 		'accessor-pairs': 'off',
@@ -408,5 +407,4 @@ module.exports = {
 		// require using arrow functions for callbacks
 		// https://eslint.org/docs/latest/rules/prefer-arrow-callback
 		'prefer-arrow-callback': ['error', { 'allowNamedFunctions': true }],
-	},
 };

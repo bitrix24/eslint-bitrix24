@@ -18,5 +18,6 @@ module.exports = {
 		'need-alias': require('./rules/need-alias'),
 		'sort-imports': require('./rules/sort-imports'),
 		'prefer-inline-type-imports': require('./rules/prefer-inline-type-imports'),
+		'brace-on-same-line': require('./rules/brace-on-same-line'),
 	},
 };

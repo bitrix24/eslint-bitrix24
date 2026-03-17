@@ -4,8 +4,8 @@ module.exports = {
 		schema: [],
 		fixable: null,
 		messages: {
-			moduleError: "Use `MessageBox` from `ui.dialogs.messagebox` to create user friendly dialogs \ndocs and examples: http://docs.bx/R&D/bitrix_dev/modules/main/ui/popup_window/alert_confirm",
-			scriptError: "Use `BX.UI.Dialogs.MessageBox` from `ui.dialogs.messagebox` to create user friendly dialogs \ndocs and examples: http://docs.bx/R&D/bitrix_dev/modules/main/ui/popup_window/alert_confirm",
+			moduleError: "Use `MessageBox` from `ui.dialogs.messagebox` to create user friendly dialogs",
+			scriptError: "Use `BX.UI.Dialogs.MessageBox` from `ui.dialogs.messagebox` to create user friendly dialogs",
 		},
 	},
 	create(context) {

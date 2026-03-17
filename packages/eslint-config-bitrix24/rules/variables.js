@@ -1,5 +1,4 @@
-module.exports = {
-	rules: {
+export const rules = {
 		// enforce or disallow variable initializations at definition
 		'init-declarations': 'error',
 
@@ -50,5 +49,4 @@ module.exports = {
 
 		'vars-on-top': 'off',
 
-	},
 };

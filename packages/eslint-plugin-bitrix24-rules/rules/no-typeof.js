@@ -4,8 +4,8 @@ module.exports = {
 		schema: [],
 		fixable: null,
 		messages: {
-			moduleError: "Use `Type` functions from `main.core` for type checking \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#type",
-			scriptError: "Use `BX.Type` functions from `main.core` for type checking \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#type",
+			moduleError: "Use `Type` functions from `main.core` for type checking",
+			scriptError: "Use `BX.Type` functions from `main.core` for type checking",
 		},
 	},
 	create(context) {

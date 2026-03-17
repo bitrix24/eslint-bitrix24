@@ -4,8 +4,8 @@ module.exports = {
 		schema: [],
 		fixable: null,
 		messages: {
-			moduleError: 'Use `Loc` functions from `main.core` to get language-sensitive messages \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#loc',
-			scriptError: 'Use `BX.Loc` functions from `main.core` to get language-sensitive messages \ndocs and examples: http://docs.bx/R&D/bitrix_dev/javascript-dev/core_library#loc',
+			moduleError: 'Use `Loc` functions from `main.core` to get language-sensitive messages',
+			scriptError: 'Use `BX.Loc` functions from `main.core` to get language-sensitive messages',
 		},
 	},
 	create(context)
