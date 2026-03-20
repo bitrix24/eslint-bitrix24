@@ -1,0 +1,93 @@
+name: Publish Package to npm
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package to publish'
+        required: true
+        type: choice
+        options:
+          - all
+          - eslint-config-bitrix24
+          - eslint-config-bitrix24-mobile
+          - eslint-plugin-bitrix24-rules
+          - eslint-plugin-bitrix24-janative
+      dry-run:
+        description: 'Run in dry-run mode (no actual publish)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.resolve.outputs.packages }}
+    steps:
+      - name: Resolve packages to publish
+        id: resolve
+        run: |
+          ALL='["eslint-config-bitrix24","eslint-config-bitrix24-mobile","eslint-plugin-bitrix24-rules","eslint-plugin-bitrix24-janative"]'
+
+          if [ "${{ inputs.package }}" = "all" ]; then
+            echo "packages=${ALL}" >> "$GITHUB_OUTPUT"
+          else
+            echo "packages=[\"${{ inputs.package }}\"]" >> "$GITHUB_OUTPUT"
+          fi
+
+  publish:
+    needs: resolve
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.resolve.outputs.packages) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify package directory
+        run: |
+          if [ ! -d "packages/${{ matrix.package }}" ]; then
+            echo "Package directory packages/${{ matrix.package }} not found"
+            exit 1
+          fi
+          echo "Publishing ${{ matrix.package }}"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Update npm for Trusted Publisher support
+        run: npm install -g npm@^11.5.2
+
+      - name: Configure npm for OIDC
+        run: |
+          echo "//registry.npmjs.org/:_authToken=" > "$NPM_CONFIG_USERCONFIG"
+
+      - name: Install dependencies
+        working-directory: packages/${{ matrix.package }}
+        run: npm install --ignore-scripts
+
+      - name: Run tests
+        working-directory: packages/${{ matrix.package }}
+        run: npm test --if-present
+
+      - name: Publish to npm
+        working-directory: packages/${{ matrix.package }}
+        run: |
+          if [ "${{ inputs.dry-run }}" = "true" ]; then
+            echo "Dry-run mode"
+            npm publish --provenance --access public --dry-run
+          else
+            npm publish --provenance --access public
+          fi
