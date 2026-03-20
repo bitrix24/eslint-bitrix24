@@ -1,10 +1,34 @@
-const path = require('path');
-const fs = require('fs');
+import * as path from 'node:path';
+import * as fs from 'node:fs';
+import { readFileSync } from 'node:fs';
 
-const repoPath = __dirname.split('node_modules').at(0);
+const repoPath = import.meta.dirname.split('node_modules').at(0);
 const aliasesConfigPath = path.join(repoPath, 'webpack.aliases.js');
 
-module.exports = {
+function loadAliasesConfig()
+{
+	try
+	{
+		const content = readFileSync(aliasesConfigPath, 'utf-8');
+		const match = content.match(/allowedModules\s*:\s*\[([^\]]*)\]/);
+		if (match)
+		{
+			const modules = match[1]
+				.split(',')
+				.map(s => s.trim().replace(/^['"]|['"]$/g, ''))
+				.filter(Boolean);
+			return modules;
+		}
+	}
+	catch
+	{
+		// File not found or parse error
+	}
+
+	return null;
+}
+
+export default {
 	meta: {
 		type: 'problem',
 		schema: [],
@@ -18,14 +42,10 @@ module.exports = {
 					const defaultAllowedModules = ['main', 'ui'];
 					if (fs.existsSync(aliasesConfigPath))
 					{
-						delete require.cache[aliasesConfigPath];
-						const aliasesConfig = require(aliasesConfigPath);
-						if (
-							typeof aliasesConfig === 'object'
-							&& Array.isArray(aliasesConfig.allowedModules)
-						)
+						const configModules = loadAliasesConfig();
+						if (Array.isArray(configModules))
 						{
-							return [...new Set([...aliasesConfig.allowedModules, ...defaultAllowedModules])];
+							return [...new Set([...configModules, ...defaultAllowedModules])];
 						}
 					}
 

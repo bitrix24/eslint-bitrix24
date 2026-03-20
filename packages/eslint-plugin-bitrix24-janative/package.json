@@ -2,6 +2,7 @@
 	"name": "@bitrix24/eslint-plugin-bitrix24-janative",
 	"version": "1.0.3",
 	"description": "ESLint rules for the Bitrix24 Janative style guide",
+	"type": "module",
 	"main": "index.js",
 	"repository": {
 		"type": "git",

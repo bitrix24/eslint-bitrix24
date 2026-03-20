@@ -4,8 +4,6 @@
  * Based on @saji/eslint-plugin-brace-rules by Joshua Searles.
  * Rewritten without lodash dependency and with ESLint 8/9 compatibility.
  */
-"use strict";
-
 const BLOCK_TYPES = [
 	"ArrowFunctionExpression",
 	"ClassDeclaration",
@@ -55,7 +53,7 @@ function genSchemaProps(defaults) {
 	return props;
 }
 
-module.exports = {
+export default {
 	meta: {
 		type: "layout",
 		fixable: "whitespace",

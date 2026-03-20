@@ -1,8 +1,9 @@
-"use strict";
+import noGlobalRequire from './rules/no-global-require.js';
+import noStaticVariableInClass from './rules/no-static-variable-in-class.js';
 
-module.exports = {
+export default {
 	rules: {
-		'no-global-require': require('./rules/no-global-require'),
-		'no-static-variable-in-class': require('./rules/no-static-variable-in-class'),
+		'no-global-require': noGlobalRequire,
+		'no-static-variable-in-class': noStaticVariableInClass,
 	},
 };

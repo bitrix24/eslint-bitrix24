@@ -1,5 +1,8 @@
-const { RuleTester } = require('eslint');
-const rule = require('../rules/sort-imports');
+import { RuleTester } from 'eslint';
+import rule from '../rules/sort-imports.js';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 const ruleTester = new RuleTester({
 	parser: require.resolve('@babel/eslint-parser'),
