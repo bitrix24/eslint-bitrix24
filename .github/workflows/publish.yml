@@ -82,7 +82,24 @@ jobs:
         working-directory: packages/${{ matrix.package }}
         run: npm test --if-present
 
+      - name: Check if version already published
+        id: check
+        working-directory: packages/${{ matrix.package }}
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          LOCAL_VERSION=$(node -p "require('./package.json').version")
+          PUBLISHED_VERSION=$(npm view "$PACKAGE_NAME" version 2>/dev/null || echo "")
+
+          if [ "$LOCAL_VERSION" = "$PUBLISHED_VERSION" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "$PACKAGE_NAME@$LOCAL_VERSION already published, skipping"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "$PACKAGE_NAME@$LOCAL_VERSION → publishing (current: ${PUBLISHED_VERSION:-none})"
+          fi
+
       - name: Publish to npm
+        if: steps.check.outputs.skip != 'true'
         working-directory: packages/${{ matrix.package }}
         run: |
           if [ "${{ inputs.dry-run }}" = "true" ]; then
