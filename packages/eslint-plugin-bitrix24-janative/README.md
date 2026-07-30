@@ -14,10 +14,62 @@ This plugin is included automatically when using [@bitrix24/eslint-config-bitrix
 
 ## Rules
 
-| Rule | Description |
-|------|-------------|
-| `no-global-require` | Disallow top-level `require()` calls outside of `jn.define()` |
-| `no-static-variable-in-class` | Disallow static variable declarations in classes |
+| Rule | Level in the mobile preset | Description |
+|------|------|-------------|
+| `deps-unresolved-require` | error | The required path does not exist: nothing declares it with `jn.define()` |
+| `deps-missing-entry` | error | The dependency is used but not listed in `deps.php` |
+| `deps-external-bundle` | error | The required file is a bundle file of another extension |
+| `deps-unused-entry` | error | `deps.php` lists a path nothing in the extension uses |
+| `deps-non-canonical-require` | error | The path is not the name the target file declares |
+| `no-global-require` | error | Disallow top-level `require()` calls outside of `jn.define()` |
+| `no-static-variable-in-class` | off | Disallow static variable declarations in classes |
+
+A repository that has not been through `janative-deps sync` yet will fail on the entries it
+accumulated before the rules existed. Run `janative-deps sync` once over the mobileapp tree
+and commit the result before turning the preset on.
+
+### How the dependency rules read the code
+
+A dependency is a `require()` call with a string literal, or an `@deps path` annotation in a
+comment. A template string cannot be read — that is what `@deps` exists for. `requireLazy()`
+and `jn.import()` are lazy loading, never a dependency of the file, and never go into
+`deps.php`. Paths starting with `native/` are outside the project and are not looked for.
+
+The checks form a chain, so a single request produces a single verdict: an unresolved path
+says nothing about `deps.php`, and a bundle file of another extension is reported as such
+rather than as a missing entry.
+
+`deps-unused-entry` judges the extension as a whole and reports once, at its entry point
+(`extension.js` or `component.js`): a path unused by one file may well be used by its
+neighbour. An entry marked `// @keep` on its line is never reported. An extension that calls
+`requireLazy()` keeps `require-lazy` in `deps.php` without ever requiring it.
+
+## Command
+
+```bash
+npx janative-deps check [path...]     # report what does not match deps.php
+npx janative-deps sync  [path...]     # write deps.php to match the code
+```
+
+`check` is what the rules report, applied to whole directories rather than a single file. It
+exits with `1` when it finds errors, so CI can gate on it, and with `0` when it finds only
+warnings. It also catches what the rules cannot: a commit that touches `deps.php` alone,
+without any JavaScript for ESLint to look at.
+
+`sync` writes the file. Missing dependencies are added in the canonical section order
+(`components` → `extensions` → `bundle`), unused entries are removed except the ones marked
+`@keep`, a flat file without sections stays flat, and a file left with nothing to list is
+deleted. Formatting, quote style and comments of an existing file are preserved: entries are
+inserted and removed as point edits, not by rewriting the file.
+
+| Option | Meaning |
+|--------|---------|
+| `--dry-run` | with `sync`, report the changes without writing them |
+| `--quiet` | report only the summary |
+| `-h`, `--help` | show usage |
+
+Paths default to the current directory. Pointing the command at a repository root visits every
+extension of the mobileapp tree.
 
 ## License
 
