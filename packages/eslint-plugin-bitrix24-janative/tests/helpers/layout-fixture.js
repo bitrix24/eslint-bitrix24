@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 import { resetDefineIndexCache } from '../../core/define-index.js';
+import { resetExtensionCache } from '../../core/extension.js';
 import { resetLayoutCache } from '../../core/layout.js';
 import { resetResolverCache } from '../../core/resolver.js';
 
@@ -36,6 +37,7 @@ export function resetCaches()
 	resetLayoutCache();
 	resetDefineIndexCache();
 	resetResolverCache();
+	resetExtensionCache();
 }
 
 export function removeLayouts()
