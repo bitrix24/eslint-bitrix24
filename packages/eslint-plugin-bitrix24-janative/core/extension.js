@@ -1,13 +1,10 @@
-import fs from 'node:fs';
 import path from 'node:path';
 
-import { COMPONENT_FILE, COMPONENTS_DIR, DEPS_FILE, EXTENSION_FILE, JS_EXTENSION } from './constants.js';
+import { COMPONENT_FILE, COMPONENTS_DIR, DEPS_FILE, EXTENSION_FILE } from './constants.js';
 import { DepsFile } from './deps-file.js';
-import { isFile, readTextFile } from './fs-utils.js';
+import { isDirectory, isFile, modifiedAt, readTextFile, walkJsFiles } from './fs-utils.js';
 import { splitJaNativePath, toPosix } from './path-utils.js';
-import { scanSource } from './source-scan.js';
-
-export { DEPS_ANNOTATION_PATTERN, LAZY_PATTERN, REQUIRE_PATTERN } from './source-scan.js';
+import { scanParsed, scanSource } from './source-scan.js';
 
 /** Entry point of a tree: `extension.js` under extensions, `component.js` under components. */
 function entryMarkerFor(directory)
@@ -15,34 +12,10 @@ function entryMarkerFor(directory)
 	return splitJaNativePath(directory)?.kind === COMPONENTS_DIR ? COMPONENT_FILE : EXTENSION_FILE;
 }
 
-function isDirectory(candidate)
-{
-	try
-	{
-		return fs.statSync(candidate).isDirectory();
-	}
-	catch
-	{
-		return false;
-	}
-}
-
 /** A directory owning an extension: it carries the entry point of its tree, or a deps.php. */
 export function isExtensionRoot(directory)
 {
 	return isFile(`${directory}/${entryMarkerFor(directory)}`) || isFile(`${directory}/${DEPS_FILE}`);
-}
-
-function modifiedAt(filePath)
-{
-	try
-	{
-		return fs.statSync(filePath).mtimeMs;
-	}
-	catch
-	{
-		return null;
-	}
 }
 
 /**
@@ -83,6 +56,8 @@ export class Extension
 
 	#scans = new Map();
 
+	#entryFile = undefined;
+
 	#depsFile = null;
 
 	#depsStamp = null;
@@ -104,19 +79,20 @@ export class Extension
 		return this.#root;
 	}
 
-	/** `extension.js` or `component.js` of the extension, or null when it has neither. */
+	/**
+	 * Entry point of the extension, or null when it has none. The marker follows the tree
+	 * the extension lives in — a `component.js` inside an extensions tree is a bundle file,
+	 * not an entry point, exactly as `dependencyTypeOf` sees it.
+	 */
 	get entryFile()
 	{
-		for (const marker of [EXTENSION_FILE, COMPONENT_FILE])
+		if (this.#entryFile === undefined)
 		{
-			const candidate = `${this.#root}/${marker}`;
-			if (isFile(candidate))
-			{
-				return candidate;
-			}
+			const candidate = `${this.#root}/${entryMarkerFor(this.#root)}`;
+			this.#entryFile = isFile(candidate) ? candidate : null;
 		}
 
-		return null;
+		return this.#entryFile;
 	}
 
 	get depsPath()
@@ -145,7 +121,7 @@ export class Extension
 	 */
 	get files()
 	{
-		return [...collectOwnFiles(this.#root)];
+		return [...walkJsFiles(this.#root, isExtensionRoot)];
 	}
 
 	/**
@@ -169,7 +145,9 @@ export class Extension
 		for (const file of this.files)
 		{
 			const override = overrides?.get(file);
-			const scan = override === undefined ? this.#scanOf(file) : scanSource(override);
+			const scan = override === undefined
+				? this.#scanOf(file)
+				: (typeof override === 'string' ? scanSource(override) : scanParsed(override));
 			if (scan === null)
 			{
 				continue;
@@ -214,37 +192,6 @@ export class Extension
 export function requestedPaths(source)
 {
 	return scanSource(source).paths;
-}
-
-function* collectOwnFiles(root)
-{
-	let entries;
-
-	try
-	{
-		entries = fs.readdirSync(root, { withFileTypes: true });
-	}
-	catch
-	{
-		return;
-	}
-
-	for (const entry of entries)
-	{
-		const full = `${root}/${entry.name}`;
-
-		if (entry.isDirectory())
-		{
-			if (!isExtensionRoot(full))
-			{
-				yield* collectOwnFiles(full);
-			}
-		}
-		else if (entry.isFile() && entry.name.endsWith(JS_EXTENSION))
-		{
-			yield full;
-		}
-	}
 }
 
 const extensionCache = new Map();

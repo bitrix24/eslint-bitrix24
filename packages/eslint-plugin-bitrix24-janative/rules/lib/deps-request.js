@@ -2,13 +2,11 @@ import { REQUEST, classifyRequest } from '../../core/audit.js';
 import { Extension } from '../../core/extension.js';
 import { isJaNativePath } from '../../core/path-utils.js';
 import { resolverForFile } from '../../core/resolver.js';
-import { isRequireCallee, stringArgumentOf } from '../../core/source-scan.js';
+import { DEPS_ANNOTATION_PATTERN, isRequireCallee, stringArgumentOf } from '../../core/source-scan.js';
 
 export { REQUEST, classifyRequest };
 
-const ANNOTATION_PATTERN = /@deps\s+(\S+)/g;
-
-export function filenameOf(context)
+function filenameOf(context)
 {
 	return context.filename ?? context.getFilename();
 }
@@ -42,7 +40,7 @@ export function depsContextOf(context)
 }
 
 /** `require('path')` or `jn.require('path')` with a string literal, or null for anything else. */
-export function requiredPathOf(node)
+function requiredPathOf(node)
 {
 	return isRequireCallee(node.callee) ? stringArgumentOf(node) : null;
 }
@@ -53,18 +51,15 @@ export function requiredPathOf(node)
  *
  * @returns {Array<{path: string, comment: Object}>}
  */
-export function annotatedPaths(context)
+function annotatedPaths(context)
 {
 	const found = [];
 
 	for (const comment of sourceCodeOf(context).getAllComments())
 	{
-		ANNOTATION_PATTERN.lastIndex = 0;
-		let match = ANNOTATION_PATTERN.exec(comment.value);
-		while (match !== null)
+		for (const match of comment.value.matchAll(DEPS_ANNOTATION_PATTERN))
 		{
 			found.push({ path: match[1], comment });
-			match = ANNOTATION_PATTERN.exec(comment.value);
 		}
 	}
 
@@ -89,7 +84,7 @@ export function createRequestVisitor(context, report, { annotations = true } = {
 			const requested = requiredPathOf(node);
 			if (requested !== null)
 			{
-				report(classifyRequest(depsContext, requested), { node, path: requested, depsContext });
+				report(classifyRequest(depsContext, requested), { node, path: requested });
 			}
 		},
 	};
@@ -99,14 +94,36 @@ export function createRequestVisitor(context, report, { annotations = true } = {
 		visitor['Program:exit'] = () => {
 			for (const { path: requested, comment } of annotatedPaths(context))
 			{
-				report(classifyRequest(depsContext, requested), {
-					node: comment,
-					path: requested,
-					depsContext,
-				});
+				report(classifyRequest(depsContext, requested), { node: comment, path: requested });
 			}
 		};
 	}
 
 	return visitor;
+}
+
+/**
+ * The three rules that flag one verdict kind with one message are the same rule up to four
+ * values; this builds them.
+ */
+export function createKindRule({ kind, description, messageId, message, data = () => ({}) })
+{
+	return {
+		meta: {
+			type: 'problem',
+			docs: { description, recommended: true },
+			schema: [],
+			messages: { [messageId]: message },
+		},
+
+		create(context)
+		{
+			return createRequestVisitor(context, (verdict, { node, path }) => {
+				if (verdict.kind === kind)
+				{
+					context.report({ node, messageId, data: { path, ...data(verdict, path) } });
+				}
+			});
+		},
+	};
 }

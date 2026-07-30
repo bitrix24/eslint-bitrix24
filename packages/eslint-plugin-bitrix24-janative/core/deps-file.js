@@ -1,4 +1,4 @@
-import { DEPENDENCY_TYPE, DEPS_FILE } from './constants.js';
+import { DEPENDENCY_TYPE } from './constants.js';
 import { isFile, readTextFile } from './fs-utils.js';
 import { findRootArray, scanPhp } from './php-array.js';
 
@@ -11,6 +11,11 @@ export const SECTION_ORDER = [
 
 const KEEP_MARKER = '@keep';
 const DEFAULT_INDENT = '\t';
+
+function eolOf(source)
+{
+	return source.includes('\r\n') ? '\r\n' : '\n';
+}
 
 function lineStartOf(source, position)
 {
@@ -32,38 +37,6 @@ function indentOf(source, position)
 	return match === null ? '' : match[0];
 }
 
-function lineNumbersOf(source)
-{
-	const offsets = [0];
-
-	for (let i = 0; i < source.length; i++)
-	{
-		if (source[i] === '\n')
-		{
-			offsets.push(i + 1);
-		}
-	}
-
-	return position => {
-		let low = 0;
-		let high = offsets.length - 1;
-		while (low < high)
-		{
-			const middle = Math.ceil((low + high) / 2);
-			if (offsets[middle] <= position)
-			{
-				low = middle;
-			}
-			else
-			{
-				high = middle - 1;
-			}
-		}
-
-		return low;
-	};
-}
-
 /**
  * A `deps.php` file: what it lists, what is protected by `@keep`, and how to edit it
  * without disturbing its formatting.
@@ -81,6 +54,8 @@ export class DepsFile
 	#entries = [];
 
 	#kept = new Set();
+
+	#valueSet = null;
 
 	#exists;
 
@@ -101,19 +76,9 @@ export class DepsFile
 		return new DepsFile(depsPath, isFile(depsPath) ? readTextFile(depsPath) : null);
 	}
 
-	static forExtension(extensionRoot)
-	{
-		return DepsFile.read(`${extensionRoot}/${DEPS_FILE}`);
-	}
-
 	get path()
 	{
 		return this.#path;
-	}
-
-	get source()
-	{
-		return this.#source;
 	}
 
 	get exists()
@@ -157,7 +122,30 @@ export class DepsFile
 
 	has(value)
 	{
-		return this.#entries.some(entry => entry.value === value);
+		if (this.#valueSet === null)
+		{
+			this.#valueSet = new Set(this.#entries.map(entry => entry.value));
+		}
+
+		return this.#valueSet.has(value);
+	}
+
+	/** Values listed more than once: the build reads one listing, the rest are dead weight. */
+	get duplicates()
+	{
+		const seen = new Set();
+		const doubled = [];
+
+		for (const { value } of this.#entries)
+		{
+			if (seen.has(value) && !doubled.includes(value))
+			{
+				doubled.push(value);
+			}
+			seen.add(value);
+		}
+
+		return doubled;
 	}
 
 	sectionOf(value)
@@ -302,7 +290,8 @@ export class DepsFile
 			}
 		}
 
-		const newSections = Object.entries(additions).filter(([, values]) => values.length > 0);
+		// #pendingAdditions only stores non-empty sections, so whatever is left is real.
+		const newSections = Object.entries(additions);
 
 		if (survivingSections === 0 && newSections.length === 0)
 		{
@@ -349,7 +338,7 @@ export class DepsFile
 	/** Line ending of the file itself, so an insertion does not mix endings. */
 	get #eol()
 	{
-		return this.#source.includes('\r\n') ? '\r\n' : '\n';
+		return eolOf(this.#source);
 	}
 
 	#additionEdit(array, survivors, values)
@@ -402,11 +391,7 @@ export class DepsFile
 			}
 		}
 
-		let last = null;
-		for (const section of this.#sections.values())
-		{
-			last = section;
-		}
+		const last = [...this.#sections.values()].at(-1) ?? null;
 
 		return last === null ? null : { section: last, before: false };
 	}
@@ -442,16 +427,16 @@ export class DepsFile
 
 	#markKept(comments)
 	{
-		const lineOf = lineNumbersOf(this.#source);
+		// Same line means same line start; a full line index is overkill for that question.
 		const keepLines = new Set(
 			comments
 				.filter(comment => comment.text.includes(KEEP_MARKER))
-				.map(comment => lineOf(comment.start)),
+				.map(comment => lineStartOf(this.#source, comment.start)),
 		);
 
 		for (const entry of this.#entries)
 		{
-			if (keepLines.has(lineOf(entry.token.start)))
+			if (keepLines.has(lineStartOf(this.#source, entry.token.start)))
 			{
 				this.#kept.add(entry.value);
 			}
@@ -461,7 +446,7 @@ export class DepsFile
 
 function hasAdditions(additions)
 {
-	return Object.values(additions).some(values => values.length > 0);
+	return Object.keys(additions).length > 0;
 }
 
 function fullLineEdit(source, start, end, text)
@@ -484,10 +469,10 @@ function applyEdits(source, edits)
 		result = result.slice(0, edit.start) + edit.text + result.slice(edit.end);
 	}
 
-	return ensureTrailingNewline(result, source.includes('\r\n') ? '\r\n' : '\n');
+	return ensureTrailingNewline(result, eolOf(source));
 }
 
-export function ensureTrailingNewline(text, eol = '\n')
+function ensureTrailingNewline(text, eol)
 {
 	return text.endsWith('\n') ? text : `${text}${eol}`;
 }

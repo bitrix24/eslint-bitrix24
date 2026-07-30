@@ -4,13 +4,13 @@ import { parse } from 'espree';
  * `require('path')` with a string literal, in either spelling. Only used when the source
  * does not parse — a text scan cannot tell a call from the same words inside a string.
  */
-export const REQUIRE_PATTERN = /(?<![.\w])(?:jn\.)?require\(\s*(['"])([^'"]+)\1\s*,?\s*\)/g;
+const REQUIRE_PATTERN = /(?<![.\w])(?:jn\.)?require\(\s*(['"])([^'"]+)\1\s*,?\s*\)/g;
 
 /** `@deps path/to/extension` in a comment. */
 export const DEPS_ANNOTATION_PATTERN = /@deps\s+(\S+)/g;
 
 /** Lazy loading never goes into deps.php, but it tells that `require-lazy` is in use. */
-export const LAZY_PATTERN = /(?<![.\w])requireLazy\(|(?<![.\w])jn\.import\(/;
+const LAZY_PATTERN = /(?<![.\w])requireLazy\(|(?<![.\w])jn\.import\(/;
 
 const PARSE_OPTIONS = { ecmaVersion: 'latest', comment: true };
 
@@ -47,30 +47,40 @@ export function stringArgumentOf(node)
 	return argument?.type === 'Literal' && typeof argument.value === 'string' ? argument.value : null;
 }
 
-function* nodesOf(value)
+/**
+ * Explicit stack, no generators: the walk visits every property of every node, and on a
+ * repository-sized run the generator machinery costs more than the parse itself did.
+ */
+function eachNode(root, visit)
 {
-	if (Array.isArray(value))
+	const stack = [root];
+
+	while (stack.length > 0)
 	{
-		for (const item of value)
+		const value = stack.pop();
+
+		if (Array.isArray(value))
 		{
-			yield* nodesOf(item);
+			for (let i = value.length - 1; i >= 0; i--)
+			{
+				stack.push(value[i]);
+			}
+			continue;
 		}
 
-		return;
-	}
-
-	if (value === null || typeof value !== 'object' || typeof value.type !== 'string')
-	{
-		return;
-	}
-
-	yield value;
-
-	for (const [key, child] of Object.entries(value))
-	{
-		if (!WALK_SKIPPED.has(key))
+		if (value === null || typeof value !== 'object' || typeof value.type !== 'string')
 		{
-			yield* nodesOf(child);
+			continue;
+		}
+
+		visit(value);
+
+		for (const key in value)
+		{
+			if (!WALK_SKIPPED.has(key))
+			{
+				stack.push(value[key]);
+			}
 		}
 	}
 }
@@ -100,35 +110,33 @@ function collectAnnotations(text, paths)
 	}
 }
 
-function scanParsed(ast)
+/** Scan of an already parsed tree — the AST ESLint hands to a rule works here as is. */
+export function scanParsed(ast)
 {
 	const paths = new Set();
 	let usesLazyLoading = false;
 
-	for (const node of nodesOf(ast))
-	{
+	eachNode(ast, (node) => {
 		if (node.type !== 'CallExpression')
 		{
-			continue;
+			return;
 		}
 
 		if (isLazyCallee(node.callee))
 		{
 			usesLazyLoading = true;
-			continue;
+			return;
 		}
 
-		if (!isRequireCallee(node.callee))
+		if (isRequireCallee(node.callee))
 		{
-			continue;
+			const requested = stringArgumentOf(node);
+			if (requested !== null)
+			{
+				paths.add(requested);
+			}
 		}
-
-		const requested = stringArgumentOf(node);
-		if (requested !== null)
-		{
-			paths.add(requested);
-		}
-	}
+	});
 
 	for (const comment of ast.comments ?? [])
 	{

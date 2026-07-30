@@ -1,7 +1,5 @@
-import fs from 'node:fs';
-
 import { COMPONENT_FILE, COMPONENTS_DIR, EXTENSION_FILE, EXTENSIONS_DIR } from './constants.js';
-import { readTextFile, walkJsFiles } from './fs-utils.js';
+import { modifiedAt, readTextFile, walkJsFiles } from './fs-utils.js';
 import { canonicalDefinePath } from './path-utils.js';
 
 const DEFINE_PATTERN = /jn\.define\(\s*(['"])([^'"]+)\1/g;
@@ -9,17 +7,7 @@ const DEFINE_PATTERN = /jn\.define\(\s*(['"])([^'"]+)\1/g;
 /** Every define path declared by a file. */
 export function declaredDefinePaths(source)
 {
-	const paths = [];
-
-	DEFINE_PATTERN.lastIndex = 0;
-	let match = DEFINE_PATTERN.exec(source);
-	while (match !== null)
-	{
-		paths.push(match[2]);
-		match = DEFINE_PATTERN.exec(source);
-	}
-
-	return paths;
+	return [...source.matchAll(DEFINE_PATTERN)].map(match => match[2]);
 }
 
 const declaredCache = new Map();
@@ -30,16 +18,7 @@ const declaredCache = new Map();
  */
 export function declaredPathsOf(file)
 {
-	let stamp = null;
-	try
-	{
-		stamp = fs.statSync(file).mtimeMs;
-	}
-	catch
-	{
-		// A missing file declares nothing; the null stamp keeps the answer cached.
-	}
-
+	const stamp = modifiedAt(file);
 	const cached = declaredCache.get(file);
 	if (cached !== undefined && cached.stamp === stamp)
 	{
@@ -87,16 +66,6 @@ export class DefineIndex
 		return this.#map.get(definePath) ?? null;
 	}
 
-	get size()
-	{
-		if (this.#map === null)
-		{
-			this.#build();
-		}
-
-		return this.#map.size;
-	}
-
 	#build()
 	{
 		this.#map = new Map();
@@ -115,7 +84,10 @@ export class DefineIndex
 						continue;
 					}
 
-					for (const definePath of declaredDefinePaths(source))
+					const declared = declaredDefinePaths(source);
+					declaredCache.set(file, { stamp: modifiedAt(file), paths: declared });
+
+					for (const definePath of declared)
 					{
 						if (!this.#map.has(definePath))
 						{

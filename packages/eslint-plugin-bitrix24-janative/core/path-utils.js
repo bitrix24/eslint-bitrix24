@@ -15,6 +15,11 @@ import {
 	RELATIVE_PREFIX,
 } from './constants.js';
 
+function stripJsExtension(relative)
+{
+	return relative.endsWith(JS_EXTENSION) ? relative.slice(0, -JS_EXTENSION.length) : relative;
+}
+
 export function toPosix(filePath)
 {
 	return String(filePath).split(path.sep).join('/');
@@ -113,11 +118,7 @@ export function canonicalDefinePath(filePath)
 		}
 	}
 
-	const stripped = relative.endsWith(JS_EXTENSION)
-		? relative.slice(0, -JS_EXTENSION.length)
-		: relative;
-
-	return stripped.replace(/\/+$/, '');
+	return stripJsExtension(relative).replace(/\/+$/, '');
 }
 
 /** Namespace directory the file belongs to; `bitrix` means the anonymous mobile core. */
@@ -207,10 +208,7 @@ export function toDepsPath(definePath, filePath)
 /** Entry to write into deps.php for a bundle file: `./path/inside/extension`. */
 export function toBundleDepsPath(filePath, extensionRoot)
 {
-	const relative = toPosix(path.relative(extensionRoot, filePath));
-	const stripped = relative.endsWith(JS_EXTENSION)
-		? relative.slice(0, -JS_EXTENSION.length)
-		: relative;
+	const stripped = stripJsExtension(toPosix(path.relative(extensionRoot, filePath)));
 
 	return stripped.startsWith('..') ? stripped : RELATIVE_PREFIX + stripped;
 }

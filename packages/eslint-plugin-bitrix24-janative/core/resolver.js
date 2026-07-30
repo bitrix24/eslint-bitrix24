@@ -62,7 +62,13 @@ export class Resolver
 		}
 
 		const record = this.#find(normalized);
-		this.#cache.set(normalized, record);
+
+		// A full miss is the one answer new files change, so it is the one answer
+		// a long-lived ESLint server must not remember forever.
+		if (record.resolved !== null || record.nearMiss !== null)
+		{
+			this.#cache.set(normalized, record);
+		}
 
 		return record;
 	}
@@ -81,7 +87,7 @@ export class Resolver
 			const declared = declaredPathsOf(candidate);
 			if (declared.length === 0 || declared.includes(definePath))
 			{
-				return { resolved: describe(definePath, candidate), nearMiss: null };
+				return { resolved: describe(definePath, candidate, declared), nearMiss: null };
 			}
 
 			nearMiss = nearMiss ?? { file: candidate, declared };
@@ -90,7 +96,7 @@ export class Resolver
 		const indexed = defineIndexFor(this.#layout).resolve(definePath);
 		if (indexed !== null)
 		{
-			return { resolved: describe(definePath, indexed), nearMiss: null };
+			return { resolved: describe(definePath, indexed, declaredPathsOf(indexed)), nearMiss: null };
 		}
 
 		return { resolved: null, nearMiss };
@@ -120,11 +126,12 @@ export class Resolver
 	}
 }
 
-function describe(definePath, file)
+function describe(definePath, file, declared)
 {
 	return {
 		definePath,
 		file,
+		declared,
 		type: dependencyTypeOf(file),
 		depsPath: toDepsPath(definePath, file),
 	};

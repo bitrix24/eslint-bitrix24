@@ -1,10 +1,10 @@
-import { DEPENDENCY_TYPE, MODULE_SEPARATOR, RELATIVE_PREFIX } from './constants.js';
+import { DEPENDENCY_TYPE, MODULE_SEPARATOR } from './constants.js';
 import { declaredPathsOf } from './define-index.js';
 import { findExtensionRoot } from './extension.js';
-import { canonicalDefinePath, isNativePath, toBundleDepsPath } from './path-utils.js';
+import { canonicalDefinePath, depsPathToDefinePath, isNativePath, toBundleDepsPath } from './path-utils.js';
 
 /** The extension providing `requireLazy()`: used through the function, never through `require()`. */
-export const LAZY_LOADING_EXTENSION = 'require-lazy';
+const LAZY_LOADING_EXTENSION = 'require-lazy';
 
 export const REQUEST = {
 	NATIVE: 'native',
@@ -27,8 +27,10 @@ export const REQUEST = {
  *
  * @returns {{kind: string, resolved: Object|null, depsPath: string|null, canonical: string|null}}
  */
-export function classifyRequest({ extension, resolver }, requestedPath)
+export function classifyRequest(context, requestedPath)
 {
+	const { extension, resolver } = context;
+
 	if (isNativePath(requestedPath))
 	{
 		return verdict(REQUEST.NATIVE);
@@ -66,10 +68,10 @@ export function classifyRequest({ extension, resolver }, requestedPath)
 
 		const depsPath = toBundleDepsPath(file, extension.root);
 
-		return verdict(verdictFor(extension, depsPath), { resolved, depsPath, canonical });
+		return verdict(verdictFor(context, depsPath), { resolved, depsPath, canonical });
 	}
 
-	return verdict(verdictFor(extension, resolved.depsPath), {
+	return verdict(verdictFor(context, resolved.depsPath), {
 		resolved,
 		depsPath: resolved.depsPath,
 		canonical,
@@ -107,23 +109,23 @@ function spellingOf(resolved, requestedPath)
 	return canonical !== '' && canonical !== requestedPath ? canonical : null;
 }
 
-function verdictFor(extension, depsPath)
+function verdictFor(context, depsPath)
 {
-	return listsPath(extension, depsPath) ? REQUEST.LISTED : REQUEST.MISSING_ENTRY;
+	return listsPath(context, depsPath) ? REQUEST.LISTED : REQUEST.MISSING_ENTRY;
 }
 
 /** deps.php may spell a namespaced path with either separator; both mean the same entry. */
-export function listsPath(extension, depsPath)
+function listsPath({ extension, deps }, depsPath)
 {
-	const deps = extension.depsFile;
+	const file = deps ?? extension.depsFile;
 
-	return deps.has(depsPath) || deps.has(alternativeSpelling(depsPath));
+	return file.has(depsPath) || file.has(alternativeSpelling(depsPath));
 }
 
 function alternativeSpelling(depsPath)
 {
 	return depsPath.includes(MODULE_SEPARATOR)
-		? depsPath.replace(MODULE_SEPARATOR, '/')
+		? depsPathToDefinePath(depsPath)
 		: depsPath.replace('/', MODULE_SEPARATOR);
 }
 
@@ -131,9 +133,9 @@ function alternativeSpelling(depsPath)
  * The path a `require()` call should spell to reach the file it resolved to.
  * A file declares its own name, so the declaration wins over the file location.
  */
-export function canonicalRequirePath(resolved)
+function canonicalRequirePath(resolved)
 {
-	const declared = declaredPathsOf(resolved.file);
+	const declared = resolved.declared ?? declaredPathsOf(resolved.file);
 
 	if (declared.length === 0)
 	{
@@ -152,30 +154,33 @@ export function canonicalRequirePath(resolved)
  */
 export function auditExtension(extension, resolver, { overrides = null } = {})
 {
-	const context = { extension, resolver };
-	const { paths, usesLazyLoading } = overrides === null
-		? extension.dependencies
-		: extension.collectDependencies(overrides);
+	const deps = extension.depsFile;
+	const context = { extension, resolver, deps };
+	const { paths, usesLazyLoading } = extension.collectDependencies(overrides);
 
 	const unresolved = [];
 	const nonCanonical = [];
 	const externalBundles = [];
 	const missing = [];
-	const required = new Map();
+	const required = new Set();
 
 	// A request the audit cannot follow through — a native module, a path that resolves
 	// nowhere, a bundle file of a neighbour — still keeps its deps.php entry alive: the code
 	// does ask for it. What is wrong with the request itself is reported by its own rule, and
 	// calling the entry unused on top of that would have `sync` delete a line the build needs.
-	const protectEntry = requestedPath => required.set(requestedPath, { type: null, path: requestedPath });
+	const protectEntry = requestedPath => required.add(requestedPath);
 
 	// deps.php may point at the very same file by a relative path — a second spelling of the
-	// request, not an entry of its own.
+	// request, not an entry of its own. A file outside the root comes back as `../x`,
+	// which deps.php spells `./../x`, so both forms count.
 	const protectFileSpelling = (file) => {
 		const relative = toBundleDepsPath(file, extension.root);
 
 		protectEntry(relative);
-		protectEntry(relative.startsWith(RELATIVE_PREFIX) ? relative : RELATIVE_PREFIX + relative);
+		if (!relative.startsWith('./'))
+		{
+			protectEntry(`./${relative}`);
+		}
 	};
 
 	for (const [requestedPath, sources] of paths)
@@ -219,7 +224,7 @@ export function auditExtension(extension, resolver, { overrides = null } = {})
 			continue;
 		}
 
-		required.set(request.depsPath, { type: request.resolved.type, path: requestedPath });
+		required.add(request.depsPath);
 		protectFileSpelling(request.resolved.file);
 
 		if (request.kind === REQUEST.MISSING_ENTRY)
@@ -238,27 +243,14 @@ export function auditExtension(extension, resolver, { overrides = null } = {})
 	// guessing that it belongs here would be adding a dependency nobody asked for.
 	if (usesLazyLoading)
 	{
-		required.set(LAZY_LOADING_EXTENSION, { type: DEPENDENCY_TYPE.EXTENSIONS, path: null });
+		required.add(LAZY_LOADING_EXTENSION);
 	}
 
-	const deps = extension.depsFile;
 	const kept = deps.kept;
 	const unused = deps.entries
 		.map(entry => entry.value)
 		.filter(value => !kept.has(value))
 		.filter(value => !required.has(value) && !required.has(alternativeSpelling(value)));
-
-	// The same value listed twice: the build reads one of them, the other is dead weight.
-	const seen = new Set();
-	const duplicates = [];
-	for (const { value } of deps.entries)
-	{
-		if (seen.has(value) && !duplicates.includes(value))
-		{
-			duplicates.push(value);
-		}
-		seen.add(value);
-	}
 
 	return {
 		root: extension.root,
@@ -269,8 +261,7 @@ export function auditExtension(extension, resolver, { overrides = null } = {})
 		externalBundles,
 		missing,
 		unused,
-		duplicates,
-		required,
+		duplicates: deps.duplicates,
 	};
 }
 

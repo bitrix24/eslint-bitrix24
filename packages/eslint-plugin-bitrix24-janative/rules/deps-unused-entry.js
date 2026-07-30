@@ -28,7 +28,8 @@ export default {
 			'Program:exit'(node)
 			{
 				// The entry point is judged by what it says now, its neighbours by what is on disk.
-				const overrides = new Map([[depsContext.filename, sourceCodeOf(context).getText()]]);
+				// ESLint has already parsed this file — hand the tree over instead of the text.
+				const overrides = new Map([[depsContext.filename, sourceCodeOf(context).ast]]);
 				const audit = auditExtension(depsContext.extension, depsContext.resolver, { overrides });
 
 				for (const depsPath of audit.unused)
