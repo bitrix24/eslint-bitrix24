@@ -34,6 +34,18 @@ function isExtensionRoot(directory)
 	return ROOT_MARKERS.some(marker => isFile(`${directory}/${marker}`));
 }
 
+function modifiedAt(filePath)
+{
+	try
+	{
+		return fs.statSync(filePath).mtimeMs;
+	}
+	catch
+	{
+		return null;
+	}
+}
+
 /**
  * Nearest directory upwards holding `extension.js`, `component.js` or `deps.php`.
  * The search never leaves the namespace it started in.
@@ -74,6 +86,10 @@ export class Extension
 
 	#dependencies = null;
 
+	#depsFile = null;
+
+	#depsStamp = null;
+
 	constructor(root)
 	{
 		this.#root = toPosix(root);
@@ -111,9 +127,18 @@ export class Extension
 		return `${this.#root}/${DEPS_FILE}`;
 	}
 
+	/** Parsed `deps.php`, re-read whenever the file on disk changes. */
 	get depsFile()
 	{
-		return DepsFile.read(this.depsPath);
+		const stamp = modifiedAt(this.depsPath);
+
+		if (this.#depsFile === null || this.#depsStamp !== stamp)
+		{
+			this.#depsFile = DepsFile.read(this.depsPath);
+			this.#depsStamp = stamp;
+		}
+
+		return this.#depsFile;
 	}
 
 	/** JS files owned by the extension: nested extensions are somebody else's business. */
