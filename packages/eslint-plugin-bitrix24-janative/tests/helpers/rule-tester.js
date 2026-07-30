@@ -13,6 +13,7 @@ export const FILES = {
 	dashboard: `${APP}/extensions/tasks/dashboard/extension.js`,
 	dashboardHelper: `${APP}/extensions/tasks/dashboard/src/helper.js`,
 	task: `${APP}/extensions/tasks/task/extension.js`,
+	reports: `${APP}/extensions/tasks/reports/extension.js`,
 	list: `${APP}/components/tasks/tasks.list/component.js`,
 	outside: `${FIXTURE_ROOT}/tasksmobile/install/js/tasks/entry.js`,
 };

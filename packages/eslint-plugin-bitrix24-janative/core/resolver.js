@@ -33,43 +33,67 @@ export class Resolver
 	 */
 	resolve(definePath)
 	{
+		return this.#lookup(definePath).resolved;
+	}
+
+	/**
+	 * A file sitting exactly where the path points, but declaring itself under another name.
+	 * The request cannot work as written, and the declaration says how it should be written.
+	 *
+	 * @returns {{file: string, declared: string[]}|null}
+	 */
+	nearMiss(definePath)
+	{
+		return this.#lookup(definePath).nearMiss;
+	}
+
+	#lookup(definePath)
+	{
 		const normalized = depsPathToDefinePath(definePath);
 		if (normalized === '')
 		{
-			return null;
+			return { resolved: null, nearMiss: null };
 		}
 
-		if (this.#cache.has(normalized))
+		const cached = this.#cache.get(normalized);
+		if (cached !== undefined)
 		{
-			return this.#cache.get(normalized);
+			return cached;
 		}
 
-		const file = this.#findByConvention(normalized) ?? defineIndexFor(this.#layout).resolve(normalized);
-		const resolved = file === null
-			? null
-			: {
-				definePath: normalized,
-				file,
-				type: dependencyTypeOf(file),
-				depsPath: toDepsPath(normalized, file),
-			};
+		const record = this.#find(normalized);
+		this.#cache.set(normalized, record);
 
-		this.#cache.set(normalized, resolved);
-
-		return resolved;
+		return record;
 	}
 
-	#findByConvention(definePath)
+	#find(definePath)
 	{
+		let nearMiss = null;
+
 		for (const candidate of this.#candidates(definePath))
 		{
-			if (isFile(candidate) && declaresDefinePath(candidate, definePath))
+			if (!isFile(candidate))
 			{
-				return candidate;
+				continue;
 			}
+
+			const declared = declaredPathsOf(candidate);
+			if (declared.length === 0 || declared.includes(definePath))
+			{
+				return { resolved: describe(definePath, candidate), nearMiss: null };
+			}
+
+			nearMiss = nearMiss ?? { file: candidate, declared };
 		}
 
-		return null;
+		const indexed = defineIndexFor(this.#layout).resolve(definePath);
+		if (indexed !== null)
+		{
+			return { resolved: describe(definePath, indexed), nearMiss: null };
+		}
+
+		return { resolved: null, nearMiss };
 	}
 
 	*#candidates(definePath)
@@ -96,21 +120,25 @@ export class Resolver
 	}
 }
 
+function describe(definePath, file)
+{
+	return {
+		definePath,
+		file,
+		type: dependencyTypeOf(file),
+		depsPath: toDepsPath(definePath, file),
+	};
+}
+
 /**
- * A file found by convention counts only when it does not declare a different define path:
- * a file with no explicit `jn.define()` is addressed by its location.
+ * A file with no explicit `jn.define()` is addressed by its location, so an empty list
+ * means the layout convention applies rather than that the file declares nothing usable.
  */
-function declaresDefinePath(file, definePath)
+function declaredPathsOf(file)
 {
 	const source = readTextFile(file);
-	if (source === null)
-	{
-		return false;
-	}
 
-	const declared = declaredDefinePaths(source);
-
-	return declared.length === 0 || declared.includes(definePath);
+	return source === null ? [] : declaredDefinePaths(source);
 }
 
 const resolverCache = new Map();

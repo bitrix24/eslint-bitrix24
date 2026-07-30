@@ -39,6 +39,12 @@ createRuleTester().run('deps-unresolved-require', rule, {
 			code: '// @deps loc',
 			filename: FILES.dashboard,
 		},
+		{
+			// A file does sit there, it just declares another name: that is a spelling
+			// problem with its own rule, not a missing extension.
+			code: "const { helper } = require('tasks/dashboard/src/helper');",
+			filename: FILES.task,
+		},
 	],
 	invalid: [
 		{

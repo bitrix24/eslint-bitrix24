@@ -160,20 +160,24 @@ export class Extension
 	{
 		if (this.#dependencies === null)
 		{
-			this.#dependencies = this.#collectDependencies();
+			this.#dependencies = this.collectDependencies();
 		}
 
 		return this.#dependencies;
 	}
 
-	#collectDependencies()
+	/**
+	 * @param {Map<string, string>|null} overrides contents to use instead of what is on disk,
+	 *        so that a file open in the editor is judged by what it says now
+	 */
+	collectDependencies(overrides = null)
 	{
 		const paths = new Map();
 		let usesLazyLoading = false;
 
 		for (const file of this.files)
 		{
-			const source = readTextFile(file);
+			const source = overrides?.get(file) ?? readTextFile(file);
 			if (source === null)
 			{
 				continue;

@@ -1,15 +1,9 @@
-import { DEPENDENCY_TYPE, MODULE_SEPARATOR } from '../../core/constants.js';
-import { Extension, findExtensionRoot } from '../../core/extension.js';
-import { isJaNativePath, isNativePath, toBundleDepsPath } from '../../core/path-utils.js';
+import { REQUEST, classifyRequest } from '../../core/audit.js';
+import { Extension } from '../../core/extension.js';
+import { isJaNativePath } from '../../core/path-utils.js';
 import { resolverForFile } from '../../core/resolver.js';
 
-export const REQUEST = {
-	NATIVE: 'native',
-	UNRESOLVED: 'unresolved',
-	EXTERNAL_BUNDLE: 'external-bundle',
-	MISSING_ENTRY: 'missing-entry',
-	LISTED: 'listed',
-};
+export { REQUEST, classifyRequest };
 
 const ANNOTATION_PATTERN = /@deps\s+(\S+)/g;
 
@@ -44,68 +38,6 @@ export function depsContextOf(context)
 	}
 
 	return { filename, resolver, extension };
-}
-
-/**
- * Verdict on a single requested path.
- *
- * The checks form a chain — an unresolved path says nothing about deps.php — so each rule
- * reports only its own stage and the developer sees one verdict per request, not three.
- *
- * @returns {{kind: string, resolved: Object|null, depsPath: string|null}}
- */
-export function classifyRequest(depsContext, requestedPath)
-{
-	if (isNativePath(requestedPath))
-	{
-		return { kind: REQUEST.NATIVE, resolved: null, depsPath: null };
-	}
-
-	const resolved = depsContext.resolver.resolve(requestedPath);
-	if (resolved === null)
-	{
-		return { kind: REQUEST.UNRESOLVED, resolved: null, depsPath: null };
-	}
-
-	const { extension } = depsContext;
-
-	if (resolved.type === DEPENDENCY_TYPE.BUNDLE)
-	{
-		if (findExtensionRoot(resolved.file) !== extension.root)
-		{
-			return { kind: REQUEST.EXTERNAL_BUNDLE, resolved, depsPath: null };
-		}
-
-		const depsPath = toBundleDepsPath(resolved.file, extension.root);
-
-		return {
-			kind: listsPath(extension, depsPath) ? REQUEST.LISTED : REQUEST.MISSING_ENTRY,
-			resolved,
-			depsPath,
-		};
-	}
-
-	return {
-		kind: listsPath(extension, resolved.depsPath) ? REQUEST.LISTED : REQUEST.MISSING_ENTRY,
-		resolved,
-		depsPath: resolved.depsPath,
-	};
-}
-
-/** deps.php may spell a namespaced path with either separator; both mean the same entry. */
-export function listsPath(extension, depsPath)
-{
-	const deps = extension.depsFile;
-	if (deps.has(depsPath))
-	{
-		return true;
-	}
-
-	const alternative = depsPath.includes(MODULE_SEPARATOR)
-		? depsPath.replace(MODULE_SEPARATOR, '/')
-		: depsPath.replace('/', MODULE_SEPARATOR);
-
-	return deps.has(alternative);
 }
 
 /** `require('path')` with a string literal, or null for anything else. */
@@ -146,10 +78,10 @@ export function annotatedPaths(context)
 }
 
 /**
- * Walks every dependency request of the file — `require()` calls and `@deps` annotations —
- * handing each to `report` together with its verdict.
+ * Walks every dependency request of the file — `require()` calls and, unless
+ * `annotations` is off, `@deps` comments — handing each to `report` with its verdict.
  */
-export function createRequestVisitor(context, report)
+export function createRequestVisitor(context, report, { annotations = true } = {})
 {
 	const depsContext = depsContextOf(context);
 	if (depsContext === null)
@@ -157,7 +89,7 @@ export function createRequestVisitor(context, report)
 		return {};
 	}
 
-	return {
+	const visitor = {
 		CallExpression(node)
 		{
 			const requested = requiredPathOf(node);
@@ -166,8 +98,11 @@ export function createRequestVisitor(context, report)
 				report(classifyRequest(depsContext, requested), { node, path: requested, depsContext });
 			}
 		},
-		'Program:exit'()
-		{
+	};
+
+	if (annotations)
+	{
+		visitor['Program:exit'] = () => {
 			for (const { path: requested, comment } of annotatedPaths(context))
 			{
 				report(classifyRequest(depsContext, requested), {
@@ -176,6 +111,8 @@ export function createRequestVisitor(context, report)
 					depsContext,
 				});
 			}
-		},
-	};
+		};
+	}
+
+	return visitor;
 }
