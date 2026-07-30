@@ -9,6 +9,8 @@ const DASHBOARD = `${APP}/extensions/tasks/dashboard`;
 const REPORTS = `${APP}/extensions/tasks/reports`;
 const FLAT = `${APP}/extensions/tasks/flat`;
 const BROKEN = `${APP}/extensions/tasks/broken`;
+const PROTECTED = `${APP}/extensions/tasks/protected`;
+const NAMESAKE = `${APP}/extensions/tasks/namesake`;
 
 const LAYOUT = {
 	...SAMPLE_LAYOUT,
@@ -29,6 +31,22 @@ const LAYOUT = {
 	// A deps.php that returns nothing cannot be edited and must be left alone.
 	[`${BROKEN}/extension.js`]: `${define('tasks/broken')}\nconst { Loc } = require('loc');\n`,
 	[`${BROKEN}/deps.php`]: '<?php\n',
+	// Entries the audit cannot follow: a native module and a bundle file of a neighbour.
+	[`${PROTECTED}/extension.js`]: [
+		define('tasks/protected'),
+		"const { File } = require('native/filesystem');",
+		"const { helper } = require('tasks/dashboard/helper');",
+	].join('\n'),
+	[`${PROTECTED}/deps.php`]:
+		"<?php\n\nreturn [\n\t'extensions' => [\n\t\t'native/filesystem',\n\t\t'tasks:dashboard/helper',\n\t],\n\t'bundle' => [\n\t\t'./../dashboard/src/helper',\n\t],\n];\n",
+	// Declares a name the mobile core declares too, and asks for it.
+	[`${NAMESAKE}/extension.js`]: [
+		define('tasks/namesake'),
+		"const { Shared } = require('shared/thing');",
+	].join('\n'),
+	[`${NAMESAKE}/src/thing.js`]: define('shared/thing'),
+	[`${NAMESAKE}/deps.php`]: "<?php\n\nreturn [\n\t'bundle' => [\n\t\t'./src/thing',\n\t],\n];\n",
+	'mobile/install/mobileapp/mobile/extensions/bitrix/shared/thing.js': define('shared/thing'),
 	'mobile/install/mobileapp/mobile/extensions/bitrix/loc/extension.js': define('loc'),
 	'mobile/install/mobileapp/mobile/extensions/bitrix/type/extension.js': define('type'),
 	'mobile/install/mobileapp/mobile/extensions/bitrix/require-lazy/extension.js': define('require-lazy'),
@@ -115,6 +133,28 @@ describe('janative-deps', () => {
 			assert.match(result.output, /'type' is listed in deps\.php but unused/);
 			// require-lazy is used through requireLazy(), so it is not unused.
 			assert.equal(result.output.includes("'require-lazy' is listed"), false);
+		});
+
+		it('keeps an entry the code asks for, whatever is wrong with the request', () => {
+			const result = capture(['check', `${root}/${PROTECTED}`], root);
+
+			// The bundle file of a neighbour is a problem of its own, reported once.
+			assert.match(result.output, /'tasks\/dashboard\/helper' is a bundle file of another extension/);
+			assert.equal(result.output.includes('but unused'), false);
+		});
+
+		it('keeps an entry pointing at the same file by a relative path', () => {
+			const result = capture(['check', `${root}/${PROTECTED}`], root);
+
+			assert.equal(result.output.includes("'./../dashboard/src/helper' is listed"), false);
+		});
+
+		it('prefers its own declaration over a namesake in another module', () => {
+			const result = capture(['check', `${root}/${NAMESAKE}`], root);
+
+			assert.equal(result.exitCode, 0);
+			assert.equal(result.output.includes('bundle file of another extension'), false);
+			assert.equal(result.output.includes("'./src/thing' is listed"), false);
 		});
 
 		it('calls out a deps.php that returns no array', () => {

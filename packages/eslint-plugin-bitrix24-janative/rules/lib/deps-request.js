@@ -2,6 +2,7 @@ import { REQUEST, classifyRequest } from '../../core/audit.js';
 import { Extension } from '../../core/extension.js';
 import { isJaNativePath } from '../../core/path-utils.js';
 import { resolverForFile } from '../../core/resolver.js';
+import { isRequireCallee, stringArgumentOf } from '../../core/source-scan.js';
 
 export { REQUEST, classifyRequest };
 
@@ -40,17 +41,10 @@ export function depsContextOf(context)
 	return { filename, resolver, extension };
 }
 
-/** `require('path')` with a string literal, or null for anything else. */
+/** `require('path')` or `jn.require('path')` with a string literal, or null for anything else. */
 export function requiredPathOf(node)
 {
-	if (node.callee?.type !== 'Identifier' || node.callee.name !== 'require')
-	{
-		return null;
-	}
-
-	const [argument] = node.arguments;
-
-	return typeof argument?.value === 'string' && argument.type === 'Literal' ? argument.value : null;
+	return isRequireCallee(node.callee) ? stringArgumentOf(node) : null;
 }
 
 /**

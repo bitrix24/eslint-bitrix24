@@ -23,6 +23,9 @@
 		"url": "https://github.com/bitrix24/eslint-bitrix24/issues"
 	},
 	"homepage": "https://github.com/bitrix24/eslint-bitrix24#readme",
+	"dependencies": {
+		"espree": "^9.6.1 || ^10.0.0"
+	},
 	"devDependencies": {
 		"mocha": "^11.7.5",
 		"@babel/core": "^7.28.5",

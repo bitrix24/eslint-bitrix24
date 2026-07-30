@@ -1,19 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { COMPONENT_FILE, COMPONENTS_DIR, DEPS_FILE, EXTENSION_FILE, EXTENSIONS_DIR } from '../core/constants.js';
-import { findExtensionRoot } from '../core/extension.js';
+import { COMPONENTS_DIR, EXTENSIONS_DIR } from '../core/constants.js';
+import { findExtensionRoot, isExtensionRoot } from '../core/extension.js';
 import { isFile } from '../core/fs-utils.js';
 import { layoutForRepo } from '../core/layout.js';
 import { repoRootFor, toPosix } from '../core/path-utils.js';
 
-const ROOT_MARKERS = [EXTENSION_FILE, COMPONENT_FILE, DEPS_FILE];
 const SKIPPED = new Set(['node_modules', '.git', '.hg', '.idea']);
-
-function isExtensionRoot(directory)
-{
-	return ROOT_MARKERS.some(marker => isFile(`${directory}/${marker}`));
-}
 
 function isInside(candidate, container)
 {

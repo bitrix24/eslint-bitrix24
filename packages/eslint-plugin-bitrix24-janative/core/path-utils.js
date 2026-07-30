@@ -126,17 +126,23 @@ export function namespaceOf(filePath)
 	return splitJaNativePath(filePath)?.namespace ?? '';
 }
 
-/** Dependency section a file belongs to, decided by its file name. */
+/**
+ * Dependency section a file belongs to.
+ *
+ * The name alone does not settle it: a bundle file may well be called `component.js`.
+ * A file is an entry point only when it carries the marker of the tree it lives in.
+ */
 export function dependencyTypeOf(filePath)
 {
 	const name = segmentsOf(filePath).pop();
+	const kind = splitJaNativePath(filePath)?.kind;
 
-	if (name === EXTENSION_FILE)
+	if (kind === EXTENSIONS_DIR && name === EXTENSION_FILE)
 	{
 		return DEPENDENCY_TYPE.EXTENSIONS;
 	}
 
-	if (name === COMPONENT_FILE)
+	if (kind === COMPONENTS_DIR && name === COMPONENT_FILE)
 	{
 		return DEPENDENCY_TYPE.COMPONENTS;
 	}

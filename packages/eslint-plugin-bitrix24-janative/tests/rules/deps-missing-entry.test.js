@@ -38,10 +38,31 @@ createRuleTester().run('deps-missing-entry', rule, {
 			code: "requireLazy('type');",
 			filename: FILES.dashboard,
 		},
+		{
+			// The global form, which the code outside a define has to use.
+			code: "const { Loc } = jn.require('loc');",
+			filename: FILES.dashboard,
+		},
+		{
+			// The extension reaching for its own name: nothing depends on itself.
+			code: "const { Dashboard } = jn.require('tasks/dashboard');",
+			filename: FILES.dashboardHelper,
+		},
 	],
 	invalid: [
 		{
 			code: "const { Type } = require('type');",
+			filename: FILES.dashboard,
+			errors: [{ messageId: 'missing', data: { depsPath: 'type' } }],
+		},
+		{
+			code: "const { Type } = jn.require('type');",
+			filename: FILES.dashboard,
+			errors: [{ messageId: 'missing', data: { depsPath: 'type' } }],
+		},
+		{
+			// A call split across lines with a trailing comma is still a call.
+			code: "const { Type } = require(\n\t'type',\n);",
 			filename: FILES.dashboard,
 			errors: [{ messageId: 'missing', data: { depsPath: 'type' } }],
 		},

@@ -16,6 +16,8 @@ const LAYOUT = {
 	].join('\n'),
 	[`${TASK}/src/loader.js`]: `${define('tasks/task/loader')}\nconst { Type } = require('type');\n`,
 	[`${TASK}/deps.php`]: "<?php\n\nreturn [\n\t'extensions' => [\n\t\t'loc',\n\t],\n];\n",
+	// A bundle file may be called component.js; inside an extensions tree it marks nothing.
+	[`${TASK}/widget/component.js`]: define('tasks/task/widget'),
 	[`${TASK}/nested/extension.js`]: `${define('tasks/task/nested')}\nconst { Rest } = require('rest');\n`,
 	[`${TASK}/nested/src/helper.js`]: "const { Http } = require('http');\n",
 	[`${APP}/extensions/tasks/dashboard/extension.js`]: define('tasks/dashboard'),
@@ -30,12 +32,32 @@ describe('requestedPaths', () => {
 		assert.deepEqual([...requestedPaths('// @deps tasks:task/legacy')], ['tasks:task/legacy']);
 	});
 
-	it('ignores a qualified require', () => {
-		assert.deepEqual([...requestedPaths("jn.require('loc');")], []);
+	it('reads the global form used outside a define', () => {
+		assert.deepEqual([...requestedPaths("jn.require('loc');")], ['loc']);
+	});
+
+	it('reads a call split across lines with a trailing comma', () => {
+		assert.deepEqual([...requestedPaths("require(\n\t'loc',\n);")], ['loc']);
 	});
 
 	it('ignores a template string, which is what @deps is for', () => {
 		assert.deepEqual([...requestedPaths('require(`${name}`);')], []);
+	});
+
+	it('ignores a require spelled inside a template string', () => {
+		assert.deepEqual([...requestedPaths('const code = `require(\'loc\')`;')], []);
+	});
+
+	it('ignores an annotation spelled inside a string', () => {
+		assert.deepEqual([...requestedPaths("const text = '@deps tasks:task/legacy';")], []);
+	});
+
+	it('leaves a method of somebody else alone', () => {
+		assert.deepEqual([...requestedPaths("loader.require('loc');")], []);
+	});
+
+	it('falls back to a text scan when the source does not parse', () => {
+		assert.deepEqual([...requestedPaths("require('loc'); this is not javascript {")], ['loc']);
 	});
 
 	it('does not repeat a path asked for twice', () => {
@@ -60,6 +82,13 @@ describe('findExtensionRoot', () => {
 		assert.equal(
 			findExtensionRoot(`${root}/${TASK}/nested/src/helper.js`),
 			`${root}/${TASK}/nested`,
+		);
+	});
+
+	it('does not take a bundle file named component.js for a root', () => {
+		assert.equal(
+			findExtensionRoot(`${root}/${TASK}/widget/component.js`),
+			`${root}/${TASK}`,
 		);
 	});
 
@@ -92,7 +121,11 @@ describe('Extension', () => {
 	it('owns its files and leaves the nested extension alone', () => {
 		const files = extension.files.map(file => file.slice(root.length + 1)).sort();
 
-		assert.deepEqual(files, [`${TASK}/extension.js`, `${TASK}/src/loader.js`]);
+		assert.deepEqual(files, [
+			`${TASK}/extension.js`,
+			`${TASK}/src/loader.js`,
+			`${TASK}/widget/component.js`,
+		]);
 	});
 
 	it('collects dependencies of every own file', () => {

@@ -1,21 +1,19 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { COMPONENT_FILE, DEPS_FILE, EXTENSION_FILE, JS_EXTENSION } from './constants.js';
+import { COMPONENT_FILE, COMPONENTS_DIR, DEPS_FILE, EXTENSION_FILE, JS_EXTENSION } from './constants.js';
 import { DepsFile } from './deps-file.js';
 import { isFile, readTextFile } from './fs-utils.js';
 import { splitJaNativePath, toPosix } from './path-utils.js';
+import { scanSource } from './source-scan.js';
 
-const ROOT_MARKERS = [EXTENSION_FILE, COMPONENT_FILE, DEPS_FILE];
+export { DEPS_ANNOTATION_PATTERN, LAZY_PATTERN, REQUIRE_PATTERN } from './source-scan.js';
 
-/** `require('path')` with a string literal; a template string is out of reach and needs `@deps`. */
-export const REQUIRE_PATTERN = /(?<![.\w])require\(\s*(['"])([^'"]+)\1\s*\)/g;
-
-/** `@deps path/to/extension` in a comment. */
-export const DEPS_ANNOTATION_PATTERN = /@deps\s+(\S+)/g;
-
-/** Lazy loading never goes into deps.php, but it tells that `require-lazy` is in use. */
-export const LAZY_PATTERN = /(?<![.\w])requireLazy\(|(?<![.\w])jn\.import\(/;
+/** Entry point of a tree: `extension.js` under extensions, `component.js` under components. */
+function entryMarkerFor(directory)
+{
+	return splitJaNativePath(directory)?.kind === COMPONENTS_DIR ? COMPONENT_FILE : EXTENSION_FILE;
+}
 
 function isDirectory(candidate)
 {
@@ -29,9 +27,10 @@ function isDirectory(candidate)
 	}
 }
 
-function isExtensionRoot(directory)
+/** A directory owning an extension: it carries the entry point of its tree, or a deps.php. */
+export function isExtensionRoot(directory)
 {
-	return ROOT_MARKERS.some(marker => isFile(`${directory}/${marker}`));
+	return isFile(`${directory}/${entryMarkerFor(directory)}`) || isFile(`${directory}/${DEPS_FILE}`);
 }
 
 function modifiedAt(filePath)
@@ -183,7 +182,9 @@ export class Extension
 				continue;
 			}
 
-			for (const requested of requestedPaths(source))
+			const scan = scanSource(source);
+
+			for (const requested of scan.paths)
 			{
 				const sources = paths.get(requested) ?? [];
 				if (!sources.includes(file))
@@ -193,7 +194,7 @@ export class Extension
 				paths.set(requested, sources);
 			}
 
-			usesLazyLoading = usesLazyLoading || LAZY_PATTERN.test(source);
+			usesLazyLoading = usesLazyLoading || scan.usesLazyLoading;
 		}
 
 		return { paths, usesLazyLoading };
@@ -203,19 +204,7 @@ export class Extension
 /** Define paths a source asks for, through `require()` or an `@deps` annotation. */
 export function requestedPaths(source)
 {
-	const found = new Set();
-
-	for (const match of source.matchAll(REQUIRE_PATTERN))
-	{
-		found.add(match[2]);
-	}
-
-	for (const match of source.matchAll(DEPS_ANNOTATION_PATTERN))
-	{
-		found.add(match[1]);
-	}
-
-	return found;
+	return scanSource(source).paths;
 }
 
 function* collectOwnFiles(root)
