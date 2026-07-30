@@ -1,7 +1,6 @@
 import { DEPENDENCY_TYPE, MODULE_SEPARATOR, RELATIVE_PREFIX } from './constants.js';
-import { declaredDefinePaths } from './define-index.js';
+import { declaredPathsOf } from './define-index.js';
 import { findExtensionRoot } from './extension.js';
-import { readTextFile } from './fs-utils.js';
 import { canonicalDefinePath, isNativePath, toBundleDepsPath } from './path-utils.js';
 
 /** The extension providing `requireLazy()`: used through the function, never through `require()`. */
@@ -87,9 +86,7 @@ function ownDeclarationOf(extension, definePath)
 {
 	for (const file of extension.files)
 	{
-		const source = readTextFile(file);
-
-		if (source !== null && declaredDefinePaths(source).includes(definePath))
+		if (declaredPathsOf(file).includes(definePath))
 		{
 			return file;
 		}
@@ -136,8 +133,7 @@ function alternativeSpelling(depsPath)
  */
 export function canonicalRequirePath(resolved)
 {
-	const source = readTextFile(resolved.file);
-	const declared = source === null ? [] : declaredDefinePaths(source);
+	const declared = declaredPathsOf(resolved.file);
 
 	if (declared.length === 0)
 	{
@@ -252,6 +248,18 @@ export function auditExtension(extension, resolver, { overrides = null } = {})
 		.filter(value => !kept.has(value))
 		.filter(value => !required.has(value) && !required.has(alternativeSpelling(value)));
 
+	// The same value listed twice: the build reads one of them, the other is dead weight.
+	const seen = new Set();
+	const duplicates = [];
+	for (const { value } of deps.entries)
+	{
+		if (seen.has(value) && !duplicates.includes(value))
+		{
+			duplicates.push(value);
+		}
+		seen.add(value);
+	}
+
 	return {
 		root: extension.root,
 		depsFile: deps,
@@ -261,6 +269,7 @@ export function auditExtension(extension, resolver, { overrides = null } = {})
 		externalBundles,
 		missing,
 		unused,
+		duplicates,
 		required,
 	};
 }

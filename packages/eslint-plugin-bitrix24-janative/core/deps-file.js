@@ -175,10 +175,11 @@ export class DepsFile
 	{
 		const removals = new Set(remove.filter(value => !this.#kept.has(value)));
 		const additions = this.#pendingAdditions(add);
+		const redundant = this.#redundantEntries(removals);
 
 		// Nothing asked for means nothing written: an untouched file keeps every byte,
 		// including a missing trailing newline and an already empty section.
-		if (removals.size === 0 && !hasAdditions(additions))
+		if (removals.size === 0 && !hasAdditions(additions) && redundant.size === 0)
 		{
 			return this.#exists ? this.#source : null;
 		}
@@ -197,10 +198,33 @@ export class DepsFile
 
 		if (this.isFlat)
 		{
-			return this.#applyFlat(removals, additions);
+			return this.#applyFlat(removals, additions, redundant);
 		}
 
-		return this.#applySectioned(removals, additions);
+		return this.#applySectioned(removals, additions, redundant);
+	}
+
+	/** Repeat listings of a surviving value: the first occurrence speaks, the rest go. */
+	#redundantEntries(removals)
+	{
+		const seen = new Set();
+		const redundant = new Set();
+
+		for (const entry of this.#entries)
+		{
+			if (removals.has(entry.value))
+			{
+				continue;
+			}
+
+			if (seen.has(entry.value))
+			{
+				redundant.add(entry);
+			}
+			seen.add(entry.value);
+		}
+
+		return redundant;
 	}
 
 	#pendingAdditions(add)
@@ -220,11 +244,12 @@ export class DepsFile
 		return pending;
 	}
 
-	#applyFlat(removals, additions)
+	#applyFlat(removals, additions, redundant)
 	{
 		// A flat file keeps its shape: entries are appended, sections are not introduced.
 		const flattened = Object.values(additions).flat();
-		const survivors = this.#entries.filter(entry => !removals.has(entry.value));
+		const survivors = this.#entries
+			.filter(entry => !removals.has(entry.value) && !redundant.has(entry));
 
 		if (survivors.length === 0 && flattened.length === 0)
 		{
@@ -232,7 +257,7 @@ export class DepsFile
 		}
 
 		const edits = this.#entries
-			.filter(entry => removals.has(entry.value))
+			.filter(entry => removals.has(entry.value) || redundant.has(entry))
 			.map(entry => this.#removalEdit(entry));
 
 		if (flattened.length > 0)
@@ -243,14 +268,15 @@ export class DepsFile
 		return applyEdits(this.#source, edits);
 	}
 
-	#applySectioned(removals, additions)
+	#applySectioned(removals, additions, redundant)
 	{
 		const edits = [];
 		let survivingSections = 0;
 
 		for (const [name, section] of this.#sections)
 		{
-			const survivors = section.entries.filter(entry => !removals.has(entry.value));
+			const survivors = section.entries
+				.filter(entry => !removals.has(entry.value) && !redundant.has(entry));
 			const incoming = additions[name] ?? [];
 			delete additions[name];
 
@@ -264,7 +290,7 @@ export class DepsFile
 
 			for (const entry of section.entries)
 			{
-				if (removals.has(entry.value))
+				if (removals.has(entry.value) || redundant.has(entry))
 				{
 					edits.push(this.#removalEdit(entry));
 				}
@@ -320,17 +346,24 @@ export class DepsFile
 		};
 	}
 
+	/** Line ending of the file itself, so an insertion does not mix endings. */
+	get #eol()
+	{
+		return this.#source.includes('\r\n') ? '\r\n' : '\n';
+	}
+
 	#additionEdit(array, survivors, values)
 	{
 		const anchor = survivors.length > 0 ? survivors[survivors.length - 1].token : null;
 		const quote = anchor?.quote ?? "'";
+		const eol = this.#eol;
 		const indent = anchor === null
 			? indentOf(this.#source, array.start) + DEFAULT_INDENT
 			: indentOf(this.#source, anchor.start);
 		const at = anchor === null
 			? lineEndOf(this.#source, array.start)
 			: lineEndOf(this.#source, anchor.end);
-		const text = values.map(value => `${indent}${quote}${value}${quote},\n`).join('');
+		const text = values.map(value => `${indent}${quote}${value}${quote},${eol}`).join('');
 
 		return { start: at, end: at, text };
 	}
@@ -338,13 +371,14 @@ export class DepsFile
 	#newSectionEdit(name, values)
 	{
 		const anchor = this.#sectionAnchor(name);
+		const eol = this.#eol;
 		const indent = anchor === null
 			? indentOf(this.#source, this.#root.start) + DEFAULT_INDENT
 			: indentOf(this.#source, anchor.section.token.start);
 		const inner = indent + DEFAULT_INDENT;
 		const quote = this.#entries[0]?.token.quote ?? "'";
-		const lines = values.map(value => `${inner}${quote}${value}${quote},\n`).join('');
-		const block = `${indent}${quote}${name}${quote} => [\n${lines}${indent}],\n`;
+		const lines = values.map(value => `${inner}${quote}${value}${quote},${eol}`).join('');
+		const block = `${indent}${quote}${name}${quote} => [${eol}${lines}${indent}],${eol}`;
 
 		const at = anchor === null
 			? lineEndOf(this.#source, this.#root.start)
@@ -450,12 +484,12 @@ function applyEdits(source, edits)
 		result = result.slice(0, edit.start) + edit.text + result.slice(edit.end);
 	}
 
-	return ensureTrailingNewline(result);
+	return ensureTrailingNewline(result, source.includes('\r\n') ? '\r\n' : '\n');
 }
 
-export function ensureTrailingNewline(text)
+export function ensureTrailingNewline(text, eol = '\n')
 {
-	return text.endsWith('\n') ? text : `${text}\n`;
+	return text.endsWith('\n') ? text : `${text}${eol}`;
 }
 
 /** Fresh `deps.php` for an extension that had none. */

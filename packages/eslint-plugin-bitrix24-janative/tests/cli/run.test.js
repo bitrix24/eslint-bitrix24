@@ -11,6 +11,7 @@ const FLAT = `${APP}/extensions/tasks/flat`;
 const BROKEN = `${APP}/extensions/tasks/broken`;
 const PROTECTED = `${APP}/extensions/tasks/protected`;
 const NAMESAKE = `${APP}/extensions/tasks/namesake`;
+const DOUBLED = `${APP}/extensions/tasks/doubled`;
 
 const LAYOUT = {
 	...SAMPLE_LAYOUT,
@@ -47,6 +48,10 @@ const LAYOUT = {
 	[`${NAMESAKE}/src/thing.js`]: define('shared/thing'),
 	[`${NAMESAKE}/deps.php`]: "<?php\n\nreturn [\n\t'bundle' => [\n\t\t'./src/thing',\n\t],\n];\n",
 	'mobile/install/mobileapp/mobile/extensions/bitrix/shared/thing.js': define('shared/thing'),
+	// Lists the same dependency twice.
+	[`${DOUBLED}/extension.js`]: `${define('tasks/doubled')}\nconst { Loc } = require('loc');\n`,
+	[`${DOUBLED}/deps.php`]:
+		"<?php\n\nreturn [\n\t'extensions' => [\n\t\t'loc',\n\t\t'loc',\n\t],\n];\n",
 	'mobile/install/mobileapp/mobile/extensions/bitrix/loc/extension.js': define('loc'),
 	'mobile/install/mobileapp/mobile/extensions/bitrix/type/extension.js': define('type'),
 	'mobile/install/mobileapp/mobile/extensions/bitrix/require-lazy/extension.js': define('require-lazy'),
@@ -126,10 +131,10 @@ describe('janative-deps', () => {
 			assert.equal(result.output.includes('utils/object'), false);
 		});
 
-		it('passes an extension that only has warnings', () => {
+		it('fails on an unused entry, matching the preset where the rule is an error', () => {
 			const result = capture(['check', `${root}/${REPORTS}`], root);
 
-			assert.equal(result.exitCode, 0);
+			assert.equal(result.exitCode, 1);
 			assert.match(result.output, /'type' is listed in deps\.php but unused/);
 			// require-lazy is used through requireLazy(), so it is not unused.
 			assert.equal(result.output.includes("'require-lazy' is listed"), false);
@@ -164,10 +169,17 @@ describe('janative-deps', () => {
 			assert.match(result.output, /deps\.php returns no array/);
 		});
 
+		it('calls out an entry listed more than once', () => {
+			const result = capture(['check', `${root}/${DOUBLED}`], root);
+
+			assert.equal(result.exitCode, 1);
+			assert.match(result.output, /'loc' is listed more than once in deps\.php/);
+		});
+
 		it('counts everything it visited', () => {
 			const result = capture(['check', root], root);
 
-			assert.match(result.output, /extensions checked, \d+ errors, \d+ warnings/);
+			assert.match(result.output, /extensions checked, \d+ errors/);
 		});
 
 		it('says nothing but the summary when quiet', () => {
@@ -233,6 +245,16 @@ return [
 
 			assert.equal(read(`${root}/${BROKEN}/deps.php`), '<?php\n');
 			assert.match(result.output, /left untouched/);
+		});
+
+		it('keeps the first listing of a doubled entry and drops the rest', () => {
+			const result = capture(['sync', `${root}/${DOUBLED}`], root);
+
+			assert.equal(result.exitCode, 0);
+			assert.equal(
+				read(`${root}/${DOUBLED}/deps.php`),
+				"<?php\n\nreturn [\n\t'extensions' => [\n\t\t'loc',\n\t],\n];\n",
+			);
 		});
 
 		it('removes a deps.php with nothing left to list', () => {

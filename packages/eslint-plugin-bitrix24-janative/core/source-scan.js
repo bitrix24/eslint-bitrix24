@@ -147,6 +147,8 @@ function scanText(source)
 		paths.add(match[2]);
 	}
 
+	// The whole text, strings included: without a parse there is no telling a comment from
+	// a string literal, and missing a real annotation costs more than reading a fake one.
 	collectAnnotations(source, paths);
 
 	return { paths, usesLazyLoading: LAZY_PATTERN.test(source) };

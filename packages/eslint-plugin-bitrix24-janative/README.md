@@ -65,15 +65,17 @@ npx janative-deps check [path...]     # report what does not match deps.php
 npx janative-deps sync  [path...]     # write deps.php to match the code
 ```
 
-`check` is what the rules report, applied to whole directories rather than a single file. It
-exits with `1` when it finds errors, so CI can gate on it, and with `0` when it finds only
-warnings. It also catches what the rules cannot: a commit that touches `deps.php` alone,
-without any JavaScript for ESLint to look at.
+`check` is what the rules report, applied to whole directories rather than a single file.
+Every finding is an error and exits with `1`, matching the preset where every rule is an
+error — a commit the rules would fail must not slip through the command either. It also
+catches what the rules cannot: a commit that touches `deps.php` alone, without any
+JavaScript for ESLint to look at, and an entry listed more than once.
 
 `sync` writes the file. Missing dependencies are added in the canonical section order
 (`components` → `extensions` → `bundle`), unused entries are removed except the ones marked
-`@keep`, a flat file without sections stays flat, and a file left with nothing to list is
-deleted. Formatting, quote style and comments of an existing file are preserved: entries are
+`@keep`, repeat listings of the same entry are collapsed into the first one, a flat file
+without sections stays flat, and a file left with nothing to list is deleted. Formatting,
+quote style, comments and line endings of an existing file are preserved: entries are
 inserted and removed as point edits, not by rewriting the file.
 
 | Option | Meaning |

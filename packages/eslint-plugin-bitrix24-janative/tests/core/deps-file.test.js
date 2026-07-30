@@ -294,6 +294,37 @@ return [
 		});
 	});
 
+	describe('line endings', () => {
+		const CRLF = "<?php\r\n\r\nreturn [\r\n\t'extensions' => [\r\n\t\t'loc',\r\n\t],\r\n];\r\n";
+
+		it('inserts with the ending the file already uses', () => {
+			const result = depsFile(CRLF).apply({ add: { extensions: ['type'] } });
+
+			assert.equal(result.includes("'type',\r\n"), true);
+			assert.equal(/[^\r]\n/.test(result), false);
+		});
+
+		it('removes a line together with its ending', () => {
+			const result = depsFile(CRLF).apply({ remove: ['loc'] });
+
+			assert.equal(result, null);
+		});
+	});
+
+	describe('doubled entries', () => {
+		const DOUBLED = "<?php\n\nreturn [\n\t'extensions' => [\n\t\t'loc',\n\t\t'type',\n\t\t'loc',\n\t],\n];\n";
+
+		it('keeps the first listing and drops the rest, changing nothing else', () => {
+			const result = depsFile(DOUBLED).apply();
+
+			assert.equal(result, "<?php\n\nreturn [\n\t'extensions' => [\n\t\t'loc',\n\t\t'type',\n\t],\n];\n");
+		});
+
+		it('does not rewrite a file with no doubles', () => {
+			assert.equal(depsFile(SECTIONED).apply(), SECTIONED);
+		});
+	});
+
 	describe('renderNewDepsFile', () => {
 		it('writes sections in the canonical order', () => {
 			const result = renderNewDepsFile({ bundle: ['./a'], components: ['m:c'], extensions: ['loc'] });

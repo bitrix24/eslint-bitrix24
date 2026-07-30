@@ -118,24 +118,24 @@ export function run(argv, { log = console.log, error = console.error, cwd = proc
 function checkAll(roots, resolver, repoRoot, { log, quiet })
 {
 	let errors = 0;
-	let warnings = 0;
 
 	for (const root of roots)
 	{
 		const audit = auditExtension(extensionForRoot(root), resolver);
 		const unreadable = audit.depsFile.exists && !audit.depsFile.parsed;
+		// Every finding is an error, matching the preset: all five rules are `error` there,
+		// so a commit the rules would fail must not slip through the command either.
 		const lines = [
 			...(unreadable ? ['  error  deps.php returns no array'] : []),
 			...audit.unresolved.map(item => `  error  cannot find '${item.path}'`),
-			...audit.nonCanonical.map(item => `  warn   '${item.path}' should be written as '${item.canonical}'`),
+			...audit.nonCanonical.map(item => `  error  '${item.path}' should be written as '${item.canonical}'`),
 			...audit.externalBundles.map(item => `  error  '${item.path}' is a bundle file of another extension`),
 			...audit.missing.map(item => `  error  '${item.depsPath}' is missing from deps.php`),
-			...audit.unused.map(entry => `  warn   '${entry}' is listed in deps.php but unused`),
+			...audit.unused.map(entry => `  error  '${entry}' is listed in deps.php but unused`),
+			...audit.duplicates.map(entry => `  error  '${entry}' is listed more than once in deps.php`),
 		];
 
-		errors += audit.unresolved.length + audit.externalBundles.length + audit.missing.length
-			+ (unreadable ? 1 : 0);
-		warnings += audit.nonCanonical.length + audit.unused.length;
+		errors += lines.length;
 
 		if (lines.length > 0 && !quiet)
 		{
@@ -146,7 +146,7 @@ function checkAll(roots, resolver, repoRoot, { log, quiet })
 
 	return {
 		exitCode: errors > 0 ? 1 : 0,
-		summary: `${roots.length} extensions checked, ${errors} errors, ${warnings} warnings`,
+		summary: `${roots.length} extensions checked, ${errors} errors`,
 	};
 }
 
@@ -165,7 +165,8 @@ function syncAll(roots, resolver, repoRoot, { log, quiet, dryRun })
 		const additions = additionsOf(audit);
 		const removals = audit.unused;
 
-		if (Object.keys(additions).length === 0 && removals.length === 0)
+		if (Object.keys(additions).length === 0 && removals.length === 0
+			&& audit.duplicates.length === 0)
 		{
 			continue;
 		}
@@ -181,7 +182,7 @@ function syncAll(roots, resolver, repoRoot, { log, quiet, dryRun })
 		const target = audit.depsFile.path;
 
 		added += Object.values(additions).flat().length;
-		dropped += removals.length;
+		dropped += removals.length + audit.duplicates.length;
 
 		if (!quiet)
 		{
@@ -191,6 +192,7 @@ function syncAll(roots, resolver, repoRoot, { log, quiet, dryRun })
 				values.forEach(value => log(`  + ${section}: ${value}`));
 			}
 			removals.forEach(value => log(`  - ${value}`));
+			audit.duplicates.forEach(value => log(`  - ${value} (listed more than once)`));
 			if (result === null)
 			{
 				log('  - deps.php (nothing left to list)');
