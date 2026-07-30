@@ -121,6 +121,12 @@ export class DepsFile
 		return this.#exists;
 	}
 
+	/** False when the file exists but returns no array at all — nothing here can edit it safely. */
+	get parsed()
+	{
+		return this.#root !== null;
+	}
+
 	/** True when the file lists paths directly, without `components`/`extensions`/`bundle` sections. */
 	get isFlat()
 	{
@@ -180,6 +186,13 @@ export class DepsFile
 		if (!this.#exists)
 		{
 			return hasAdditions(additions) ? renderNewDepsFile(additions) : null;
+		}
+
+		// A file that returns no array is left exactly as it is: there is nothing to edit,
+		// and overwriting it would throw away whatever a human put there.
+		if (!this.parsed)
+		{
+			return this.#source;
 		}
 
 		if (this.isFlat)

@@ -93,6 +93,15 @@ return [
 			assert.deepEqual(deps.sectionNames, ['extension']);
 		});
 
+		it('refuses to edit a file that returns no array', () => {
+			const source = '<?php\n';
+			const deps = depsFile(source);
+
+			assert.equal(deps.exists, true);
+			assert.equal(deps.parsed, false);
+			assert.equal(deps.apply({ add: { extensions: ['loc'] } }), source);
+		});
+
 		it('is absent when there is no file', () => {
 			const deps = new DepsFile('/tmp/deps.php', null);
 

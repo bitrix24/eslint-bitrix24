@@ -178,7 +178,9 @@ export function auditExtension(extension, resolver, { overrides = null } = {})
 		}
 	}
 
-	// The extension providing lazy loading is used through requireLazy(), not through require().
+	// The extension providing lazy loading is used through requireLazy(), not through require(),
+	// so it is protected from removal but never added: nothing in the code points at it, and
+	// guessing that it belongs here would be adding a dependency nobody asked for.
 	if (usesLazyLoading)
 	{
 		required.set(LAZY_LOADING_EXTENSION, { type: DEPENDENCY_TYPE.EXTENSIONS, path: null });

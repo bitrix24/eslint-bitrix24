@@ -4,6 +4,9 @@
 	"description": "ESLint rules for the Bitrix24 Janative style guide",
 	"type": "module",
 	"main": "index.js",
+	"bin": {
+		"janative-deps": "bin/janative-deps.js"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/bitrix24/eslint-bitrix24.git"
