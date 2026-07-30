@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+
 import { COMPONENT_FILE, COMPONENTS_DIR, EXTENSION_FILE, EXTENSIONS_DIR } from './constants.js';
 import { readTextFile, walkJsFiles } from './fs-utils.js';
 import { canonicalDefinePath } from './path-utils.js';
@@ -16,6 +18,37 @@ export function declaredDefinePaths(source)
 		paths.push(match[2]);
 		match = DEFINE_PATTERN.exec(source);
 	}
+
+	return paths;
+}
+
+const declaredCache = new Map();
+
+/**
+ * Declared paths of a file on disk, re-read only when the file changes. The resolver asks
+ * this about the same candidate files over and over — once per requiring extension.
+ */
+export function declaredPathsOf(file)
+{
+	let stamp = null;
+	try
+	{
+		stamp = fs.statSync(file).mtimeMs;
+	}
+	catch
+	{
+		// A missing file declares nothing; the null stamp keeps the answer cached.
+	}
+
+	const cached = declaredCache.get(file);
+	if (cached !== undefined && cached.stamp === stamp)
+	{
+		return cached.paths;
+	}
+
+	const source = stamp === null ? null : readTextFile(file);
+	const paths = source === null ? [] : declaredDefinePaths(source);
+	declaredCache.set(file, { stamp, paths });
 
 	return paths;
 }
@@ -128,4 +161,5 @@ export function defineIndexFor(layout)
 export function resetDefineIndexCache()
 {
 	indexCache.clear();
+	declaredCache.clear();
 }

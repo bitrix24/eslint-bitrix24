@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 
 import { Extension, findExtensionRoot, requestedPaths } from '../../core/extension.js';
 import { createLayout, define, removeLayouts } from '../helpers/layout-fixture.js';
@@ -158,5 +159,13 @@ describe('Extension', () => {
 
 	it('is absent for a file outside the layout', () => {
 		assert.equal(Extension.forFile(`${root}/tasksmobile/install/js/entry.js`), null);
+	});
+
+	it('sees a file created after the first look', () => {
+		const late = `${root}/${TASK}/src/late.js`;
+		fs.writeFileSync(late, `${define('tasks/task/late')}\nconst { Late } = require('late');\n`);
+
+		assert.equal(extension.files.includes(late), true);
+		assert.deepEqual(extension.dependencies.paths.get('late'), [late]);
 	});
 });

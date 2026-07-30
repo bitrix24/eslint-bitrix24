@@ -1,8 +1,8 @@
 import path from 'node:path';
 
 import { BITRIX_DIR, COMPONENT_FILE, COMPONENTS_DIR, EXTENSION_FILE, EXTENSIONS_DIR, JS_EXTENSION } from './constants.js';
-import { declaredDefinePaths, defineIndexFor } from './define-index.js';
-import { isFile, readTextFile } from './fs-utils.js';
+import { declaredPathsOf, defineIndexFor } from './define-index.js';
+import { isFile } from './fs-utils.js';
 import { layoutForFile, layoutForRepo } from './layout.js';
 import { dependencyTypeOf, depsPathToDefinePath, toDepsPath } from './path-utils.js';
 
@@ -128,17 +128,6 @@ function describe(definePath, file)
 		type: dependencyTypeOf(file),
 		depsPath: toDepsPath(definePath, file),
 	};
-}
-
-/**
- * A file with no explicit `jn.define()` is addressed by its location, so an empty list
- * means the layout convention applies rather than that the file declares nothing usable.
- */
-function declaredPathsOf(file)
-{
-	const source = readTextFile(file);
-
-	return source === null ? [] : declaredDefinePaths(source);
 }
 
 const resolverCache = new Map();

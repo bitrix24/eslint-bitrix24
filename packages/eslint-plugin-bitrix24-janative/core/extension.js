@@ -81,9 +81,7 @@ export class Extension
 {
 	#root;
 
-	#files = null;
-
-	#dependencies = null;
+	#scans = new Map();
 
 	#depsFile = null;
 
@@ -140,15 +138,14 @@ export class Extension
 		return this.#depsFile;
 	}
 
-	/** JS files owned by the extension: nested extensions are somebody else's business. */
+	/**
+	 * JS files owned by the extension: nested extensions are somebody else's business.
+	 * Listed anew on every call, so a file created after the first look is not missed —
+	 * an ESLint server lives long, and a directory listing is cheap next to reading files.
+	 */
 	get files()
 	{
-		if (this.#files === null)
-		{
-			this.#files = [...collectOwnFiles(this.#root)];
-		}
-
-		return this.#files;
+		return [...collectOwnFiles(this.#root)];
 	}
 
 	/**
@@ -157,12 +154,7 @@ export class Extension
 	 */
 	get dependencies()
 	{
-		if (this.#dependencies === null)
-		{
-			this.#dependencies = this.collectDependencies();
-		}
-
-		return this.#dependencies;
+		return this.collectDependencies();
 	}
 
 	/**
@@ -176,13 +168,12 @@ export class Extension
 
 		for (const file of this.files)
 		{
-			const source = overrides?.get(file) ?? readTextFile(file);
-			if (source === null)
+			const override = overrides?.get(file);
+			const scan = override === undefined ? this.#scanOf(file) : scanSource(override);
+			if (scan === null)
 			{
 				continue;
 			}
-
-			const scan = scanSource(source);
 
 			for (const requested of scan.paths)
 			{
@@ -198,6 +189,24 @@ export class Extension
 		}
 
 		return { paths, usesLazyLoading };
+	}
+
+	/** Scan of one file, re-read only when the file on disk changes. */
+	#scanOf(file)
+	{
+		const stamp = modifiedAt(file);
+		const cached = this.#scans.get(file);
+
+		if (cached !== undefined && cached.stamp === stamp)
+		{
+			return cached.scan;
+		}
+
+		const source = readTextFile(file);
+		const scan = source === null ? null : scanSource(source);
+		this.#scans.set(file, { stamp, scan });
+
+		return scan;
 	}
 }
 
