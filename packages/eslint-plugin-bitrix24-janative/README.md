@@ -31,9 +31,19 @@ and commit the result before turning the preset on.
 ### How the dependency rules read the code
 
 A dependency is a `require()` call with a string literal, or an `@deps path` annotation in a
-comment. A template string cannot be read — that is what `@deps` exists for. `requireLazy()`
-and `jn.import()` are lazy loading, never a dependency of the file, and never go into
-`deps.php`. Paths starting with `native/` are outside the project and are not looked for.
+comment. `jn.require()` counts the same: it is the global form, used by the code living
+outside a `jn.define()`. A template string cannot be read — that is what `@deps` exists for.
+`requireLazy()` and `jn.import()` are lazy loading, never a dependency of the file, and never
+go into `deps.php`. Paths starting with `native/` are outside the project and are not looked
+for.
+
+The source is parsed rather than searched through as text, so a call split across lines is
+still a call and the same words inside a template string are not. A file that does not parse
+falls back to a text scan rather than being skipped.
+
+An extension asking for its own name depends on nothing, so no entry is expected for it. When
+two files of the repository declare the same name, the one inside the extension asking for it
+wins over the namesake.
 
 The checks form a chain, so a single request produces a single verdict: an unresolved path
 says nothing about `deps.php`, and a bundle file of another extension is reported as such
@@ -43,6 +53,10 @@ rather than as a missing entry.
 (`extension.js` or `component.js`): a path unused by one file may well be used by its
 neighbour. An entry marked `// @keep` on its line is never reported. An extension that calls
 `requireLazy()` keeps `require-lazy` in `deps.php` without ever requiring it.
+
+An entry is never called unused while the code asks for it, whatever else is wrong with the
+request — an unresolved path, a bundle file of a neighbour, a native module. Those have rules
+of their own, and removing the entry as well would take out a line the build needs.
 
 ## Command
 
