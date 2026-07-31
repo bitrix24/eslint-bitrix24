@@ -1,5 +1,11 @@
 import { createRequestVisitor } from './lib/deps-request.js';
 
+/** The replacement goes back into a JS literal, so the backslash goes first and the quote after. */
+function escapeJsString(value, quote)
+{
+	return String(value).split('\\').join('\\\\').split(quote).join(`\\${quote}`);
+}
+
 export default {
 	meta: {
 		type: 'suggestion',
@@ -29,7 +35,10 @@ export default {
 				node,
 				messageId: 'nonCanonical',
 				data: { path, canonical: request.canonical },
-				fix: fixer => fixer.replaceText(argument, `${quote}${request.canonical}${quote}`),
+				fix: fixer => fixer.replaceText(
+					argument,
+					`${quote}${escapeJsString(request.canonical, quote)}${quote}`,
+				),
 			});
 		};
 

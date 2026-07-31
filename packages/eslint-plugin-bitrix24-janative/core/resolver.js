@@ -4,7 +4,7 @@ import { BITRIX_DIR, COMPONENT_FILE, COMPONENTS_DIR, EXTENSION_FILE, EXTENSIONS_
 import { declaredPathsOf, defineIndexFor } from './define-index.js';
 import { isFile } from './fs-utils.js';
 import { layoutForFile, layoutForRepo } from './layout.js';
-import { dependencyTypeOf, depsPathToDefinePath, toDepsPath } from './path-utils.js';
+import { dependencyTypeOf, depsPathToDefinePath, toDepsPath, toPosix } from './path-utils.js';
 
 /**
  * Resolves a define path to the file that declares it.
@@ -115,12 +115,25 @@ export class Resolver
 
 		for (const [namespace, tail] of variants)
 		{
+			const suffixes = [
+				`${EXTENSIONS_DIR}/${namespace}/${tail}/${EXTENSION_FILE}`,
+				`${COMPONENTS_DIR}/${namespace}/${tail}/${COMPONENT_FILE}`,
+				`${EXTENSIONS_DIR}/${namespace}/${tail}${JS_EXTENSION}`,
+				`${COMPONENTS_DIR}/${namespace}/${tail}${JS_EXTENSION}`,
+			];
+
 			for (const appRoot of this.#layout.appRootsForNamespace(namespace))
 			{
-				yield `${appRoot}/${EXTENSIONS_DIR}/${namespace}/${tail}/${EXTENSION_FILE}`;
-				yield `${appRoot}/${COMPONENTS_DIR}/${namespace}/${tail}/${COMPONENT_FILE}`;
-				yield `${appRoot}/${EXTENSIONS_DIR}/${namespace}/${tail}${JS_EXTENSION}`;
-				yield `${appRoot}/${COMPONENTS_DIR}/${namespace}/${tail}${JS_EXTENSION}`;
+				for (const suffix of suffixes)
+				{
+					// A requested path may carry `..`: what it points at outside the
+					// application root is none of the resolver's business.
+					const candidate = toPosix(path.resolve(appRoot, suffix));
+					if (candidate.startsWith(`${appRoot}/`))
+					{
+						yield candidate;
+					}
+				}
 			}
 		}
 	}

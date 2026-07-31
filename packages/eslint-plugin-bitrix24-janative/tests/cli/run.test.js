@@ -12,6 +12,7 @@ const BROKEN = `${APP}/extensions/tasks/broken`;
 const PROTECTED = `${APP}/extensions/tasks/protected`;
 const NAMESAKE = `${APP}/extensions/tasks/namesake`;
 const DOUBLED = `${APP}/extensions/tasks/doubled`;
+const LINKED = `${APP}/extensions/tasks/linked`;
 
 const LAYOUT = {
 	...SAMPLE_LAYOUT,
@@ -52,6 +53,9 @@ const LAYOUT = {
 	[`${DOUBLED}/extension.js`]: `${define('tasks/doubled')}\nconst { Loc } = require('loc');\n`,
 	[`${DOUBLED}/deps.php`]:
 		"<?php\n\nreturn [\n\t'extensions' => [\n\t\t'loc',\n\t\t'loc',\n\t],\n];\n",
+	// Its deps.php is turned into a symlink by the test that needs one.
+	[`${LINKED}/extension.js`]: `${define('tasks/linked')}\nconst { Loc } = require('loc');\n`,
+	[`${LINKED}/deps.php`]: '<?php\n\nreturn [];\n',
 	'mobile/install/mobileapp/mobile/extensions/bitrix/loc/extension.js': define('loc'),
 	'mobile/install/mobileapp/mobile/extensions/bitrix/type/extension.js': define('type'),
 	'mobile/install/mobileapp/mobile/extensions/bitrix/require-lazy/extension.js': define('require-lazy'),
@@ -255,6 +259,27 @@ return [
 				read(`${root}/${DOUBLED}/deps.php`),
 				"<?php\n\nreturn [\n\t'extensions' => [\n\t\t'loc',\n\t],\n];\n",
 			);
+		});
+
+		it('refuses to write through a deps.php that is a symlink', () => {
+			const outside = `${root}-outside.php`;
+			const original = '<?php\n\nreturn [];\n';
+			fs.writeFileSync(outside, original, 'utf8');
+			fs.rmSync(`${root}/${LINKED}/deps.php`);
+			fs.symlinkSync(outside, `${root}/${LINKED}/deps.php`);
+
+			try
+			{
+				const result = capture(['sync', `${root}/${LINKED}`], root);
+
+				assert.equal(read(outside), original);
+				assert.equal(result.exitCode, 1);
+				assert.match(result.output, /refusing to follow symlink/);
+			}
+			finally
+			{
+				fs.rmSync(outside, { force: true });
+			}
 		});
 
 		it('removes a deps.php with nothing left to list', () => {

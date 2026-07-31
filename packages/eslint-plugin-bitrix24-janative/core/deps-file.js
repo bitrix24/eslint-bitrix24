@@ -38,6 +38,15 @@ function indentOf(source, position)
 }
 
 /**
+ * Mirror of `readString` in php-array.js: the reader only unescapes the backslash and the
+ * quote, so the writer escapes exactly those two, and the backslash first.
+ */
+function escapePhpString(value, quote)
+{
+	return String(value).split('\\').join('\\\\').split(quote).join(`\\${quote}`);
+}
+
+/**
  * A `deps.php` file: what it lists, what is protected by `@keep`, and how to edit it
  * without disturbing its formatting.
  */
@@ -86,7 +95,7 @@ export class DepsFile
 		return this.#exists;
 	}
 
-	/** False when the file exists but returns no array at all — nothing here can edit it safely. */
+	/** False when the file exists but returns no array at all - nothing here can edit it safely. */
 	get parsed()
 	{
 		return this.#root !== null;
@@ -352,7 +361,9 @@ export class DepsFile
 		const at = anchor === null
 			? lineEndOf(this.#source, array.start)
 			: lineEndOf(this.#source, anchor.end);
-		const text = values.map(value => `${indent}${quote}${value}${quote},${eol}`).join('');
+		const text = values
+			.map(value => `${indent}${quote}${escapePhpString(value, quote)}${quote},${eol}`)
+			.join('');
 
 		return { start: at, end: at, text };
 	}
@@ -366,7 +377,9 @@ export class DepsFile
 			: indentOf(this.#source, anchor.section.token.start);
 		const inner = indent + DEFAULT_INDENT;
 		const quote = this.#entries[0]?.token.quote ?? "'";
-		const lines = values.map(value => `${inner}${quote}${value}${quote},${eol}`).join('');
+		const lines = values
+			.map(value => `${inner}${quote}${escapePhpString(value, quote)}${quote},${eol}`)
+			.join('');
 		const block = `${indent}${quote}${name}${quote} => [${eol}${lines}${indent}],${eol}`;
 
 		const at = anchor === null
@@ -483,7 +496,9 @@ export function renderNewDepsFile(additions)
 	const blocks = SECTION_ORDER
 		.filter(section => (additions[section] ?? []).length > 0)
 		.map(section => {
-			const lines = additions[section].map(value => `\t\t'${value}',\n`).join('');
+			const lines = additions[section]
+				.map(value => `\t\t'${escapePhpString(value, "'")}',\n`)
+				.join('');
 
 			return `\t'${section}' => [\n${lines}\t],\n`;
 		})

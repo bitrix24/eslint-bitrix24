@@ -286,6 +286,26 @@ return [
 			assert.equal(new DepsFile('/tmp/deps.php', null).apply(), null);
 		});
 
+		it('escapes a value that could otherwise close the PHP string', () => {
+			const hostile = "./src/a'; system('id'); //";
+
+			const appended = depsFile(SECTIONED).apply({ add: { extensions: [hostile] } });
+			const sectioned = depsFile(SECTIONED).apply({ add: { bundle: [hostile] } });
+			const fresh = new DepsFile('/tmp/deps.php', null).apply({ add: { bundle: [hostile] } });
+
+			for (const written of [appended, sectioned, fresh])
+			{
+				assert.equal(written.includes("\\'"), true);
+				assert.equal(depsFile(written).has(hostile), true);
+			}
+
+			// A backslash survives the round trip too, and an ordinary path gains nothing.
+			const slashed = depsFile(SECTIONED).apply({ add: { bundle: ['./src\\view'] } });
+
+			assert.equal(depsFile(slashed).has('./src\\view'), true);
+			assert.equal(depsFile(SECTIONED).apply({ add: { extensions: ['type'] } }).includes("'type',"), true);
+		});
+
 		it('is stable: applying the same change twice changes nothing', () => {
 			const once = depsFile(SECTIONED).apply({ add: { extensions: ['type'] } });
 			const twice = depsFile(once).apply({ add: { extensions: ['type'] } });

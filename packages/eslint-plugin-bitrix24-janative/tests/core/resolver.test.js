@@ -82,4 +82,14 @@ describe('Resolver', () => {
 	it('is absent for a file outside the layout', () => {
 		assert.equal(resolverForFile(`${root}/tasksmobile/install/js/entry.js`), null);
 	});
+
+	// Creates its own layout, which resets the caches the tests above rely on: keep it last.
+	it('does not look outside the application root for a path climbing with ..', () => {
+		const escaped = createLayout({
+			...SAMPLE_LAYOUT,
+			'mobile/secret/extension.js': 'module.exports = {};\n',
+		});
+
+		assert.equal(new Resolver(layoutForRepo(escaped)).resolve('../../../../../secret'), null);
+	});
 });

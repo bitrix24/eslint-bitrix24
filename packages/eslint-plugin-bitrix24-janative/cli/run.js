@@ -204,6 +204,14 @@ function syncAll(roots, resolver, repoRoot, { log, quiet, dryRun })
 			continue;
 		}
 
+		// Writing through a symlink would land outside the tree the command was pointed at.
+		if (isSymbolicLink(target))
+		{
+			failed += 1;
+			log(`  ! cannot write ${target}: refusing to follow symlink`);
+			continue;
+		}
+
 		try
 		{
 			if (result === null)
@@ -232,6 +240,18 @@ function syncAll(roots, resolver, repoRoot, { log, quiet, dryRun })
 		exitCode: failed > 0 ? 1 : 0,
 		summary: `${roots.length} extensions visited, ${action} ${added} additions and ${dropped} removals${files}${untouched}`,
 	};
+}
+
+function isSymbolicLink(target)
+{
+	try
+	{
+		return fs.lstatSync(target).isSymbolicLink();
+	}
+	catch
+	{
+		return false;
+	}
 }
 
 function relative(repoRoot, target)
