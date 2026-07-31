@@ -1,6 +1,6 @@
 {
 	"name": "@bitrix24/eslint-config-bitrix24-mobile",
-	"version": "2.0.0",
+	"version": "2.1.0",
 	"type": "module",
 	"description": "ESLint rules for the Bitrix24 Mobile JavaScript Style Guide",
 	"main": "./preset.js",
@@ -22,6 +22,6 @@
 	},
 	"homepage": "https://github.com/bitrix24/eslint-bitrix24#readme",
 	"dependencies": {
-		"@bitrix24/eslint-plugin-bitrix24-janative": "^1.0.0"
+		"@bitrix24/eslint-plugin-bitrix24-janative": "^1.1.0"
 	}
 }

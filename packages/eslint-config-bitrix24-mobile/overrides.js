@@ -68,6 +68,14 @@ export default {
 		'max-lines-per-function': 'off',
 		'@bitrix24/bitrix24-janative/no-global-require': 'error',
 
+		// deps.php must match the code. Everything here is an error: a deps.php that drifts
+		// from the code is what breaks an extension in the application.
+		'@bitrix24/bitrix24-janative/deps-unresolved-require': 'error',
+		'@bitrix24/bitrix24-janative/deps-external-bundle': 'error',
+		'@bitrix24/bitrix24-janative/deps-missing-entry': 'error',
+		'@bitrix24/bitrix24-janative/deps-unused-entry': 'error',
+		'@bitrix24/bitrix24-janative/deps-non-canonical-require': 'error',
+
 		'@bitrix24/bitrix24-rules/no-native-events-binding': 'off',
 		'@bitrix24/bitrix24-rules/no-typeof': 'off',
 		'@bitrix24/bitrix24-rules/no-bx-message': 'off',

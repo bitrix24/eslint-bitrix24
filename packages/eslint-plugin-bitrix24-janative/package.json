@@ -1,9 +1,12 @@
 {
 	"name": "@bitrix24/eslint-plugin-bitrix24-janative",
-	"version": "1.0.4",
+	"version": "1.1.0",
 	"description": "ESLint rules for the Bitrix24 Janative style guide",
 	"type": "module",
 	"main": "index.js",
+	"bin": {
+		"janative-deps": "bin/janative-deps.js"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/bitrix24/eslint-bitrix24.git"
@@ -11,10 +14,25 @@
 	"keywords": [
 		"eslint"
 	],
+	"scripts": {
+		"test": "mocha \"tests/**/*.test.js\""
+	},
 	"author": "Bitrix24",
 	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/bitrix24/eslint-bitrix24/issues"
 	},
-	"homepage": "https://github.com/bitrix24/eslint-bitrix24#readme"
+	"homepage": "https://github.com/bitrix24/eslint-bitrix24#readme",
+	"peerDependencies": {
+		"eslint": "^8.0.0 || ^9.0.0"
+	},
+	"dependencies": {
+		"espree": "^9.6.1 || ^10.0.0"
+	},
+	"devDependencies": {
+		"mocha": "^11.7.5",
+		"@babel/core": "^7.28.5",
+		"@babel/eslint-parser": "^7.28.5",
+		"eslint": "^8.57.1"
+	}
 }
