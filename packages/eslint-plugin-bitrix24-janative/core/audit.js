@@ -19,11 +19,11 @@ export const REQUEST = {
 /**
  * Verdict on a single requested path.
  *
- * The checks form a chain — an unresolved path says nothing about deps.php — so a request
+ * The checks form a chain (an unresolved path says nothing about deps.php), so a request
  * has exactly one verdict and the rules built on top report one message, not three.
  *
  * `canonical` is filled whenever the path works but is spelled differently from the name the
- * target file declares — a separate observation from the verdict itself.
+ * target file declares: a separate observation from the verdict itself.
  *
  * @returns {{kind: string, resolved: Object|null, depsPath: string|null, canonical: string|null}}
  */
@@ -46,7 +46,7 @@ export function classifyRequest(context, requestedPath)
 			: verdict(REQUEST.NON_CANONICAL, { canonical: nearMiss.declared[0] });
 	}
 
-	// A file reaching for the name of the extension it lives in — the global form makes this
+	// A file reaching for the name of the extension it lives in: the global form makes this
 	// spelling natural. Nothing depends on itself, so there is nothing to list.
 	if (resolved.file === extension.entryFile)
 	{
@@ -164,13 +164,13 @@ export function auditExtension(extension, resolver, { overrides = null } = {})
 	const missing = [];
 	const required = new Set();
 
-	// A request the audit cannot follow through — a native module, a path that resolves
-	// nowhere, a bundle file of a neighbour — still keeps its deps.php entry alive: the code
+	// A request the audit cannot follow through (a native module, a path that resolves
+	// nowhere, a bundle file of a neighbour) still keeps its deps.php entry alive: the code
 	// does ask for it. What is wrong with the request itself is reported by its own rule, and
 	// calling the entry unused on top of that would have `sync` delete a line the build needs.
 	const protectEntry = requestedPath => required.add(requestedPath);
 
-	// deps.php may point at the very same file by a relative path — a second spelling of the
+	// deps.php may point at the very same file by a relative path - a second spelling of the
 	// request, not an entry of its own. A file outside the root comes back as `../x`,
 	// which deps.php spells `./../x`, so both forms count.
 	const protectFileSpelling = (file) => {

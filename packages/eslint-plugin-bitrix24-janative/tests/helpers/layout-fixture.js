@@ -12,7 +12,7 @@ const created = [];
 /**
  * Writes a temporary mobileapp layout.
  *
- * @param {Object<string, string>} files repo-relative path → file contents
+ * @param {Object<string, string>} files repo-relative path -> file contents
  * @returns {string} repository root
  */
 export function createLayout(files)

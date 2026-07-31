@@ -2,7 +2,7 @@ import { parse } from 'espree';
 
 /**
  * `require('path')` with a string literal, in either spelling. Only used when the source
- * does not parse — a text scan cannot tell a call from the same words inside a string.
+ * does not parse - a text scan cannot tell a call from the same words inside a string.
  */
 const REQUIRE_PATTERN = /(?<![.\w])(?:jn\.)?require\(\s*(['"])([^'"]+)\1\s*,?\s*\)/g;
 
@@ -110,7 +110,7 @@ function collectAnnotations(text, paths)
 	}
 }
 
-/** Scan of an already parsed tree — the AST ESLint hands to a rule works here as is. */
+/** Scan of an already parsed tree - the AST ESLint hands to a rule works here as is. */
 export function scanParsed(ast)
 {
 	const paths = new Set();
@@ -166,7 +166,7 @@ function scanText(source)
  * Dependency requests of a source, and whether it loads anything lazily.
  *
  * Reading the code is the only dependable way: a text scan breaks on every spelling it was
- * not written for — a require split across lines with a trailing comma, for one — and takes
+ * not written for (a require split across lines with a trailing comma, for one) and takes
  * the same words inside a template string for a call.
  *
  * @returns {{paths: Set<string>, usesLazyLoading: boolean}}

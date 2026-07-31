@@ -14,7 +14,7 @@ const declaredCache = new Map();
 
 /**
  * Declared paths of a file on disk, re-read only when the file changes. The resolver asks
- * this about the same candidate files over and over — once per requiring extension.
+ * this about the same candidate files over and over - once per requiring extension.
  */
 export function declaredPathsOf(file)
 {

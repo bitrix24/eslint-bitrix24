@@ -3,7 +3,7 @@
  *
  * Every one of the 2265 files in the repository is a static literal array: no variables,
  * no calls, no includes. A PHP parser would be dead weight, so this scanner only knows
- * strings, brackets, arrows, commas and comments — and it keeps their offsets so that
+ * strings, brackets, arrows, commas and comments, and it keeps their offsets so that
  * edits can be applied to the original text without reformatting it.
  */
 

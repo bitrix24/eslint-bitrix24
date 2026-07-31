@@ -47,8 +47,8 @@ export function findExtensionRoot(startPath)
 /**
  * An extension or component as a whole: its own files and everything they depend on.
  *
- * A verdict about an unused entry cannot be reached from a single file — the path may well
- * be used by a sibling — so the unit of judgement is the extension, not the file.
+ * A verdict about an unused entry cannot be reached from a single file (the path may well
+ * be used by a sibling), so the unit of judgement is the extension, not the file.
  */
 export class Extension
 {
@@ -81,7 +81,7 @@ export class Extension
 
 	/**
 	 * Entry point of the extension, or null when it has none. The marker follows the tree
-	 * the extension lives in — a `component.js` inside an extensions tree is a bundle file,
+	 * the extension lives in: a `component.js` inside an extensions tree is a bundle file,
 	 * not an entry point, exactly as `dependencyTypeOf` sees it.
 	 */
 	get entryFile()
@@ -116,7 +116,7 @@ export class Extension
 
 	/**
 	 * JS files owned by the extension: nested extensions are somebody else's business.
-	 * Listed anew on every call, so a file created after the first look is not missed —
+	 * Listed anew on every call, so a file created after the first look is not missed:
 	 * an ESLint server lives long, and a directory listing is cheap next to reading files.
 	 */
 	get files()

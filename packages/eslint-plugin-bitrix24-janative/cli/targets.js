@@ -44,7 +44,7 @@ function* extensionRootsUnder(directory)
 
 /**
  * Repository a path belongs to. A path inside the layout answers by itself; anything else
- * — the repository root, a module directory — is answered by looking for a mobileapp tree
+ * (the repository root, a module directory) is answered by looking for a mobileapp tree
  * at or above it.
  */
 export function findRepoRoot(startPath)
@@ -76,8 +76,8 @@ export function findRepoRoot(startPath)
 /**
  * Parts of the mobileapp tree the path covers.
  *
- * Walking the path itself would visit the whole repository — and any working copy nested
- * inside it — so the walk is confined to the extension and component directories the
+ * Walking the path itself would visit the whole repository (and any working copy nested
+ * inside it), so the walk is confined to the extension and component directories the
  * layout knows about.
  */
 function searchAreas(layout, absolute)

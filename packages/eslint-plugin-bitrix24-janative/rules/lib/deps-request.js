@@ -46,8 +46,8 @@ function requiredPathOf(node)
 }
 
 /**
- * `@deps` annotations of the file. They exist for requests automation cannot see —
- * a template string in `require()` — and are held to the same expectations.
+ * `@deps` annotations of the file. They exist for requests automation cannot see
+ * (a template string in `require()`) and are held to the same expectations.
  *
  * @returns {Array<{path: string, comment: Object}>}
  */
@@ -67,8 +67,8 @@ function annotatedPaths(context)
 }
 
 /**
- * Walks every dependency request of the file — `require()` calls and, unless
- * `annotations` is off, `@deps` comments — handing each to `report` with its verdict.
+ * Walks every dependency request of the file (`require()` calls and, unless
+ * `annotations` is off, `@deps` comments), handing each to `report` with its verdict.
  */
 export function createRequestVisitor(context, report, { annotations = true } = {})
 {

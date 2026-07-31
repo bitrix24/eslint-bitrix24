@@ -48,7 +48,7 @@ export function isJaNativePath(filePath)
  * Splits a path inside the mobileapp layout.
  *
  * `{repo}/tasksmobile/install/mobileapp/tasksmobile/extensions/tasks/dashboard/extension.js`
- * → appRoot `.../mobileapp/tasksmobile`, kind `extensions`, namespace `tasks`,
+ * -> appRoot `.../mobileapp/tasksmobile`, kind `extensions`, namespace `tasks`,
  *   tail `dashboard/extension.js`.
  *
  * @returns {{appRoot: string, kind: string, namespace: string, tail: string[]}|null}
@@ -179,7 +179,7 @@ export function isBundleDepsPath(depsPath)
 	return String(depsPath).startsWith(RELATIVE_PREFIX);
 }
 
-/** `tasks:dashboard` → `tasks/dashboard`; a path without a separator is returned as is. */
+/** `tasks:dashboard` -> `tasks/dashboard`; a path without a separator is returned as is. */
 export function depsPathToDefinePath(depsPath)
 {
 	return String(depsPath).replace(MODULE_SEPARATOR, '/');
