@@ -14,7 +14,6 @@ export const rules = {
 	'no-array-constructor': 'error',
 	'no-lonely-if': 'error',
 	'no-multi-assign': ['error'],
-	'no-nested-ternary': 'error',
 	'no-object-constructor': 'error',
 	'no-unneeded-ternary': ['error', { defaultAssignment: false }],
 	'one-var': ['error', 'never'],

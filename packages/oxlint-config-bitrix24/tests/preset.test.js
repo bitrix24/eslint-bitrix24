@@ -80,6 +80,12 @@ describe('preset', () => {
 		assert.deepEqual(problems, []);
 	});
 
+	it('does not enable a core rule its eslint-plugin-unicorn replacement turned off', () => {
+		// the ESLint preset turns no-nested-ternary off in favor of unicorn/no-nested-ternary
+		assert.equal(preset.rules['no-nested-ternary'], undefined);
+		assert.equal(preset.rules['unicorn/no-nested-ternary'], 'error');
+	});
+
 	describe('linting fixtures', () => {
 		let diagnostics;
 		const codesOf = (file) => new Set(diagnostics.filter((d) => d.file === file).map((d) => d.code));
