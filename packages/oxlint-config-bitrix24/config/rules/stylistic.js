@@ -66,6 +66,9 @@ export const rules = {
 			flatTernaryExpressions: false,
 			ignoreComments: false,
 			ignoredNodes: ['TemplateLiteral *'],
+			// ESLint's core indent accepts any indentation of the token after `=`
+			// (`let a =\n{` with the brace at the line start); @stylistic does only with 'off'
+			assignmentOperator: 'off',
 		},
 	],
 	'@stylistic/key-spacing': ['error', { beforeColon: false, afterColon: true }],
