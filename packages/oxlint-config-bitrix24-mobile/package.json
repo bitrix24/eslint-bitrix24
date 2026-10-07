@@ -1,0 +1,47 @@
+{
+	"name": "@bitrix24/oxlint-config-bitrix24-mobile",
+	"version": "0.1.0",
+	"description": "Shareable oxlint config for the Bitrix24 Mobile (JaNative) JavaScript style guide",
+	"type": "module",
+	"main": "./index.js",
+	"exports": {
+		".": "./index.js",
+		"./overrides": "./overrides.js",
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"index.js",
+		"overrides.js"
+	],
+	"scripts": {
+		"test": "mocha \"tests/**/*.test.js\" --ignore \"tests/fixtures/**\""
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bitrix24/eslint-bitrix24.git"
+	},
+	"keywords": [
+		"oxlint"
+	],
+	"author": "Bitrix24",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/bitrix24/eslint-bitrix24/issues"
+	},
+	"homepage": "https://github.com/bitrix24/eslint-bitrix24#readme",
+	"engines": {
+		"node": ">=22.18.0"
+	},
+	"peerDependencies": {
+		"@bitrix24/oxlint-config-bitrix24": "^0.1.0",
+		"oxlint": "1.87.0"
+	},
+	"dependencies": {
+		"@bitrix24/eslint-plugin-bitrix24-janative": "^1.1.1"
+	},
+	"devDependencies": {
+		"@bitrix24/oxlint-config-bitrix24": "file:../oxlint-config-bitrix24",
+		"mocha": "12.0.3",
+		"oxlint": "1.87.0"
+	}
+}
