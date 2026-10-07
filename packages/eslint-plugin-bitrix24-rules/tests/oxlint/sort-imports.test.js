@@ -1,5 +1,6 @@
 // The same cases as ../sort-imports.test.js, run by oxlint. Flow import syntax is valid
-// TypeScript, so the cases are parsed as TypeScript.
+// TypeScript, so the cases are parsed as TypeScript; file names get a `.ts` suffix, the way
+// tools hand Flow files to oxlint (the parser follows the file name).
 import { RuleTester } from 'oxlint/plugins-dev';
 import rule from '../../rules/sort-imports.js';
 
@@ -33,7 +34,7 @@ import {
 
 import './css/description-banner.css';
 `,
-			filename: 'im/install/js/im/v2/provider/service/chat/src/classes/update.js'
+			filename: 'im/install/js/im/v2/provider/service/chat/src/classes/update.js.ts'
 		},
 		{
 			code: `
@@ -43,7 +44,7 @@ import { Logger } from 'calendar.lib.logger';
 
 import { DomUtil } from './dom';
 `,
-			filename: 'im/install/js/im/v2/test.js'
+			filename: 'im/install/js/im/v2/test.js.ts'
 		},
 		{
 			code: `
@@ -57,20 +58,20 @@ import { type Something } from './types';
 
 import './style.css';
 `,
-			filename: 'test/src/file.js'
+			filename: 'test/src/file.js.ts'
 		},
 		{
 			code: `
 import { Type, type JsonObject } from 'main.core';
 `,
-			filename: 'test/src/file.js'
+			filename: 'test/src/file.js.ts'
 		},
 		{
 			code: `
 import { Type } from 'main.core';
 import { type Store } from 'ui.vue3.vuex';
 `,
-			filename: 'test/src/file.js'
+			filename: 'test/src/file.js.ts'
 		},
 		{
 			code: `
@@ -80,7 +81,7 @@ import { Logger } from 'im.v2.lib.logger';
 import { DomUtil } from './dom';
 import './css/style.css';
 `,
-			filename: 'im/install/js/im/v2/test.js'
+			filename: 'im/install/js/im/v2/test.js.ts'
 		},
 		{
 			code: `
@@ -94,7 +95,7 @@ import { DomUtil } from './dom';
 
 import './css/style.css';
 `,
-			filename: 'im/install/js/im/v2/test.js'
+			filename: 'im/install/js/im/v2/test.js.ts'
 		},
 		{
 			code: `
@@ -106,7 +107,7 @@ import { Logger } from 'im.v2.lib.logger';
 import { DomUtil } from './dom';
 import './css/style.css';
 `,
-			filename: 'im/install/js/im/v2/test.js'
+			filename: 'im/install/js/im/v2/test.js.ts'
 		},
 		{
 			code: `
@@ -115,7 +116,7 @@ import { Component } from 'ui.component';
 
 import { External } from 'calendar.sliderloader';
 `,
-			filename: 'test/src/file.js'
+			filename: 'test/src/file.js.ts'
 		},
 		{
 			code: `
@@ -123,7 +124,7 @@ import { Type } from 'main.core';
 import { isResizableImage } from 'ui.uploader.core';
 import { External } from 'calendar.sliderloader';
 `,
-			filename: 'im/install/js/im/v2/test.js'
+			filename: 'im/install/js/im/v2/test.js.ts'
 		},
 		{
 			code: `
@@ -131,7 +132,7 @@ import { Type } from 'main.core';
 import { External } from 'calendar.sliderloader';
 import { Logger } from 'im.v2.lib.logger';
 `,
-			filename: 'im/install/js/im/v2/test.js'
+			filename: 'im/install/js/im/v2/test.js.ts'
 		},
 		{
 			code: `
@@ -139,7 +140,7 @@ import 'legacy_ext';
 
 import { Type } from 'main.core';
 `,
-			filename: 'im/install/js/im/v2/test.js'
+			filename: 'im/install/js/im/v2/test.js.ts'
 		}
 	],
 
@@ -154,7 +155,7 @@ import { Type } from 'main.core';
 
 import { Logger } from 'im.v2.lib.logger';
 `,
-			filename: 'im/install/js/im/v2/test.js',
+			filename: 'im/install/js/im/v2/test.js.ts',
 			errors: [
 				{
 					message: /Imports are not properly sorted/
@@ -181,7 +182,7 @@ import './style.css';
 
 export type Foo = {};
 `,
-			filename: 'test/src/file.js',
+			filename: 'test/src/file.js.ts',
 			errors: [
 				{
 					message: /Imports are not properly sorted/
@@ -198,7 +199,7 @@ import { Type } from 'main.core';
 
 import { DomUtil } from './dom';
 `,
-			filename: 'im/install/js/im/v2/test.js',
+			filename: 'im/install/js/im/v2/test.js.ts',
 			errors: [
 				{
 					message: /Imports are not properly sorted/
@@ -215,7 +216,7 @@ import { Type } from 'main.core';
 
 import './css/style.css';
 `,
-			filename: 'im/install/js/im/v2/test.js',
+			filename: 'im/install/js/im/v2/test.js.ts',
 			errors: [
 				{
 					message: /Imports are not properly sorted/
@@ -232,7 +233,7 @@ import { Type } from 'main.core';
 
 import { External } from 'calendar.sliderloader';
 `,
-			filename: 'im/install/js/im/v2/test.js',
+			filename: 'im/install/js/im/v2/test.js.ts',
 			errors: [
 				{
 					message: /Imports are not properly sorted/
@@ -253,7 +254,7 @@ import { isResizableImage } from 'ui.uploader.core';
 import { External } from 'calendar.sliderloader';
 import { Helper } from 'external.helper';
 `,
-			filename: 'im/install/js/im/v2/test.js',
+			filename: 'im/install/js/im/v2/test.js.ts',
 			errors: [
 				{
 					message: /Expected blank line between 'main-ui-legacy' and 'external' imports/
@@ -273,7 +274,7 @@ import { DomUtil } from './dom';
 
 import './style.css';
 `,
-			filename: 'im/install/js/im/v2/test.js',
+			filename: 'im/install/js/im/v2/test.js.ts',
 			errors: [
 				{
 					message: /Imports are not properly sorted/
