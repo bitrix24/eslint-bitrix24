@@ -47,11 +47,10 @@ export const rules = {
 	'typescript/prefer-namespace-keyword': 'error',
 	'typescript/triple-slash-reference': 'error',
 
-	// vue/no-deprecated-destroyed-lifecycle and vue/require-prop-type-constructor are the
-	// JS versions in vue.js: the native ones miss components declared in .js files
-	'vue/no-deprecated-delete-set': 'error',
-	'vue/no-deprecated-model-definition': 'error',
-	'vue/no-export-in-script-setup': 'error',
-	'vue/no-this-in-before-route-enter': 'error',
-	'vue/valid-define-options': 'error',
+	// bundled versions, like all vue rules (see vue.js)
+	'@bitrix24/vue/no-deprecated-delete-set': 'error',
+	'@bitrix24/vue/no-deprecated-model-definition': 'error',
+	'@bitrix24/vue/no-export-in-script-setup': 'error',
+	'@bitrix24/vue/no-this-in-before-route-enter': 'error',
+	'@bitrix24/vue/valid-define-options': 'error',
 };

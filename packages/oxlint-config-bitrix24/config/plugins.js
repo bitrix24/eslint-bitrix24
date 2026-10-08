@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 const local = (relativePath) => fileURLToPath(new URL(relativePath, import.meta.url));
 
 // Native oxlint plugins the preset uses.
-export const plugins = ['eslint', 'unicorn', 'import', 'promise', 'vue', 'typescript', 'oxc'];
+export const plugins = ['eslint', 'unicorn', 'import', 'promise', 'typescript', 'oxc'];
 
 // JS plugins. Specifiers are absolute so the preset works from any config location.
 export const jsPlugins = [

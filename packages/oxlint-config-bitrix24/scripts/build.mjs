@@ -57,6 +57,8 @@ const BUNDLES = [
 		ruleModule: (name) => path.join(packageRoot('eslint-plugin-vue'), 'dist', 'rules', `${name}.js`),
 		header: '',
 		legacyId: '(name) => `vue/${name}`',
+		// the rules also recognize components by their shape and factory (plugins/vue-components.js)
+		wrap: { module: path.join(packageDir, 'plugins', 'vue-components.js'), name: 'withComponentMarks' },
 	},
 ];
 
@@ -103,8 +105,14 @@ for (const bundle of BUNDLES)
 		return bundle.convert ? bundle.convert(name, `rule${i}.default`) : `unwrap(rule${i})`;
 	};
 	const entries = names.map((name, i) => `\t${JSON.stringify(name)}: ${ruleExpression(name, i)},`).join('\n');
+	const wrapImport = bundle.wrap ? `import { ${bundle.wrap.name} } from ${JSON.stringify(bundle.wrap.module)};` : '';
+	const plugin = `{
+	meta: { name: ${JSON.stringify(bundle.pluginName)} },
+	rules,
+}`;
 	const contents = `
 import { withLegacyNames } from ${JSON.stringify(path.join(packageDir, 'plugins', 'legacy-names.js'))};
+${wrapImport}
 ${imports}
 
 // ESM default export, or CommonJS \`exports.default\` seen through the ESM interop
@@ -122,10 +130,7 @@ for (const [name, rule] of Object.entries(rules))
 	}
 }
 
-export default withLegacyNames({
-	meta: { name: ${JSON.stringify(bundle.pluginName)} },
-	rules,
-}, ${bundle.legacyId});
+export default withLegacyNames(${bundle.wrap ? `${bundle.wrap.name}(${plugin})` : plugin}, ${bundle.legacyId});
 `;
 
 	const result = await esbuild.build({

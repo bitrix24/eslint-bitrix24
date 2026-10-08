@@ -38,7 +38,7 @@ so it can be extended from any location.
   | `@bitrix24/core` | `camelcase`, `dot-notation`, `consistent-return`: replacements of ESLint core rules |
   | `@stylistic` | formatting rules from `@stylistic/eslint-plugin` |
   | `@bitrix24/unicorn` | `eslint-plugin-unicorn` rules oxlint has no native version of |
-  | `@bitrix24/vue` | `eslint-plugin-vue` rules oxlint has no native version of, or whose native version does not recognize components declared in `.js` files |
+  | `@bitrix24/vue` | all `eslint-plugin-vue` rules: the native ones do not recognize the components of `.js` and `.ts` files |
 
 The third-party rules are bundled into `dist/` at build time (`npm run build`), so the package
 depends neither on the ESLint plugins nor on `eslint`. License texts of the bundled code are in
@@ -62,6 +62,11 @@ Existing `eslint-disable` comments keep working:
 - Bug detectors of oxlint that ESLint had no counterpart for are enabled
   (`config/rules/detectors.js`): `x === []`, `a && a`, `new Error()` without `throw`,
   `removeEventListener()` with a new function and the like.
+- Vue rules check every component of `.js` and `.ts` files, not only those eslint-plugin-vue
+  recognizes (a `// @vue/component` comment, `Vue.component()`, `defineComponent()` from `'vue'`):
+  `plugins/vue-components.js` also recognizes components by their shape (a template with markup,
+  component options) and by the factory they are passed to (`BitrixVue.component()`,
+  `localComponent()`, `mutableComponent()`, `createApp()`, `defineComponent()` from `'ui.vue3'`).
 - `@bitrix24/bitrix24-rules` report fewer false positives than in ESLint:
   - `no-native-dom-methods`, `no-native-events-binding` and `no-style` skip objects the file
     shows are not DOM ones (type annotations, values written to a variable);
