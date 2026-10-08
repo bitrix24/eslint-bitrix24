@@ -102,19 +102,19 @@ describe('preset', () => {
 
 		it('reports formatting through @stylistic and honors legacy disable directives', () => {
 			const codes = codesOf('ext/src/format.js');
-			assert.ok(codes.has('@stylistic(object-curly-spacing)'));
-			assert.ok(codes.has('@stylistic(indent)'));
-			assert.ok(codes.has('@stylistic(semi)'));
-			assert.ok(codes.has('@bitrix24/bitrix24-rules(brace-on-same-line)'));
+			assert.ok(codes.has('@stylistic(object-curly-spacing)'), `'@stylistic(object-curly-spacing)' not among ${[...codes].join(', ') || `nothing (files with diagnostics: ${[...new Set(diagnostics.map((d) => d.file))].join(', ')})`}`);
+			assert.ok(codes.has('@stylistic(indent)'), `'@stylistic(indent)' not among ${[...codes].join(', ') || `nothing (files with diagnostics: ${[...new Set(diagnostics.map((d) => d.file))].join(', ')})`}`);
+			assert.ok(codes.has('@stylistic(semi)'), `'@stylistic(semi)' not among ${[...codes].join(', ') || `nothing (files with diagnostics: ${[...new Set(diagnostics.map((d) => d.file))].join(', ')})`}`);
+			assert.ok(codes.has('@bitrix24/bitrix24-rules(brace-on-same-line)'), `'@bitrix24/bitrix24-rules(brace-on-same-line)' not among ${[...codes].join(', ') || `nothing (files with diagnostics: ${[...new Set(diagnostics.map((d) => d.file))].join(', ')})`}`);
 			const quotes = diagnostics.filter((d) => d.file === 'ext/src/format.js' && d.code === '@stylistic(quotes)');
 			assert.deepEqual(quotes.map((d) => d.line), [5]);
 		});
 
 		it('reports bundled unicorn rules, core replacements and native rules', () => {
 			const codes = codesOf('ext/src/legacy.js');
-			assert.ok(codes.has('@bitrix24/unicorn(no-for-loop)'));
-			assert.ok(codes.has('@bitrix24/core(dot-notation)'));
-			assert.ok(codes.has('@bitrix24/core(camelcase)'));
+			assert.ok(codes.has('@bitrix24/unicorn(no-for-loop)'), `'@bitrix24/unicorn(no-for-loop)' not among ${[...codes].join(', ') || `nothing (files with diagnostics: ${[...new Set(diagnostics.map((d) => d.file))].join(', ')})`}`);
+			assert.ok(codes.has('@bitrix24/core(dot-notation)'), `'@bitrix24/core(dot-notation)' not among ${[...codes].join(', ') || `nothing (files with diagnostics: ${[...new Set(diagnostics.map((d) => d.file))].join(', ')})`}`);
+			assert.ok(codes.has('@bitrix24/core(camelcase)'), `'@bitrix24/core(camelcase)' not among ${[...codes].join(', ') || `nothing (files with diagnostics: ${[...new Set(diagnostics.map((d) => d.file))].join(', ')})`}`);
 			const camelcase = diagnostics.filter((d) => d.file === 'ext/src/legacy.js' && d.code === '@bitrix24/core(camelcase)');
 			// line 9 is disabled by its legacy id; the declaration and both references of other_total are reported
 			assert.deepEqual(camelcase.map((d) => d.line), [10, 10, 12]);
@@ -122,8 +122,8 @@ describe('preset', () => {
 
 		it('reports vue rules for components declared in .js files', () => {
 			const codes = codesOf('ext/src/component.js');
-			assert.ok(codes.has('@bitrix24/vue(require-prop-types)'));
-			assert.ok(codes.has('@bitrix24/vue(order-in-components)'));
+			assert.ok(codes.has('@bitrix24/vue(require-prop-types)'), `'@bitrix24/vue(require-prop-types)' not among ${[...codes].join(', ') || `nothing (files with diagnostics: ${[...new Set(diagnostics.map((d) => d.file))].join(', ')})`}`);
+			assert.ok(codes.has('@bitrix24/vue(order-in-components)'), `'@bitrix24/vue(order-in-components)' not among ${[...codes].join(', ') || `nothing (files with diagnostics: ${[...new Set(diagnostics.map((d) => d.file))].join(', ')})`}`);
 		});
 
 		it('applies the TypeScript override', () => {
