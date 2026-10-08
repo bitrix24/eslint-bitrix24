@@ -15,7 +15,8 @@ function lintFixture()
 	assert.equal(result.stderr, '', result.stderr);
 
 	return JSON.parse(result.stdout).diagnostics.map((d) => ({
-		file: path.relative(fixtureDir, d.filename.startsWith('file:') ? fileURLToPath(d.filename) : d.filename),
+		// oxlint names files by URL on macOS and relative to its working directory on Linux
+		file: path.relative(fixtureDir, d.filename.startsWith('file:') ? fileURLToPath(d.filename) : path.resolve(fixtureDir, d.filename)),
 		code: d.code ?? null,
 		message: d.message,
 	}));
