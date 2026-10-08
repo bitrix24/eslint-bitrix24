@@ -9,6 +9,11 @@
 //   // eslint-disable-next-line <ids>
 //   /* eslint-disable <ids> */ ... /* eslint-enable <ids> */
 // Directives without ids are handled by oxlint itself.
+//
+// The wrapper also hands every rule a context of its own for each file. oxlint passes the
+// same context object to `create` for every file a thread lints, and rules written for
+// ESLint cache per-file data by context: eslint-plugin-vue keeps the `@vue/component`
+// comments of a file in a WeakMap keyed by it, so they leaked into the next file.
 
 const DIRECTIVE = /^\s*(eslint-disable-next-line|eslint-disable-line|eslint-disable|eslint-enable)(?:\s+([\s\S]*))?$/;
 
@@ -143,6 +148,44 @@ function isSuppressed(directives, id, descriptor)
 		&& (block.end === null || isBefore(start, block.end)));
 }
 
+/**
+ * A context of its own for one file: it reads through to oxlint's context, whose `report`
+ * may be replaced.
+ */
+function perFileContext(context, report)
+{
+	const bound = new Map();
+
+	// The proxy target is a blank object: oxlint's `context.report` is a non-configurable
+	// read-only property, which a proxy over the context itself may not replace.
+	return new Proxy({}, {
+		get(target, property)
+		{
+			if (property === 'report' && report)
+			{
+				return report;
+			}
+
+			const value = Reflect.get(context, property, context);
+			if (typeof value !== 'function')
+			{
+				return value;
+			}
+
+			// methods of oxlint's context need it as `this`
+			let method = bound.get(property);
+			if (!method || method.original !== value)
+			{
+				method = { original: value, bound: value.bind(context) };
+				bound.set(property, method);
+			}
+
+			return method.bound;
+		},
+		has: (target, property) => Reflect.has(context, property),
+	});
+}
+
 function wrapRule(rule, legacyId)
 {
 	return {
@@ -150,36 +193,16 @@ function wrapRule(rule, legacyId)
 		create(context)
 		{
 			const directives = readDirectives(context.sourceCode);
-			if (!directives.mentioned.has(legacyId))
-			{
-				return rule.create(context);
-			}
-
-			const report = (descriptor) => {
-				if (!isSuppressed(directives, legacyId, descriptor))
-				{
-					context.report(descriptor);
-				}
-			};
-
-			// The proxy target is a blank object: oxlint's `context.report` is a non-configurable
-			// read-only property, which a proxy over the context itself may not replace.
-			const proxy = new Proxy({}, {
-				get(target, property)
-				{
-					if (property === 'report')
+			const report = directives.mentioned.has(legacyId)
+				? (descriptor) => {
+					if (!isSuppressed(directives, legacyId, descriptor))
 					{
-						return report;
+						context.report(descriptor);
 					}
+				}
+				: null;
 
-					const value = Reflect.get(context, property, context);
-
-					return typeof value === 'function' ? value.bind(context) : value;
-				},
-				has: (target, property) => Reflect.has(context, property),
-			});
-
-			return rule.create(proxy);
+			return rule.create(perFileContext(context, report));
 		},
 	};
 }
