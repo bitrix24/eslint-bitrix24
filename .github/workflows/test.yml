@@ -1,0 +1,49 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - eslint-plugin-bitrix24-rules
+          - eslint-plugin-bitrix24-janative
+          - oxlint-config-bitrix24
+          - oxlint-config-bitrix24-mobile
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # The oxlint configs are tested against the packages from this checkout,
+      # not against the published versions.
+      - name: Use local packages
+        if: startsWith(matrix.package, 'oxlint-config-')
+        run: |
+          cd packages
+          npm pkg set --prefix oxlint-config-bitrix24 'dependencies.@bitrix24/eslint-plugin-bitrix24-rules=file:../eslint-plugin-bitrix24-rules'
+          npm pkg set --prefix oxlint-config-bitrix24-mobile 'dependencies.@bitrix24/eslint-plugin-bitrix24-janative=file:../eslint-plugin-bitrix24-janative'
+          for dir in eslint-plugin-bitrix24-rules eslint-plugin-bitrix24-janative; do
+            (cd "$dir" && npm install --ignore-scripts --omit=dev --no-package-lock)
+          done
+          (cd oxlint-config-bitrix24 && npm install --ignore-scripts --no-package-lock && npm run build)
+
+      - name: Install dependencies
+        working-directory: packages/${{ matrix.package }}
+        run: npm install --ignore-scripts --legacy-peer-deps --no-package-lock
+
+      - name: Run tests
+        working-directory: packages/${{ matrix.package }}
+        run: npm test --if-present
