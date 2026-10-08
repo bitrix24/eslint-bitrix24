@@ -1,6 +1,8 @@
 // Bitrix24 rules (@bitrix24/eslint-plugin-bitrix24-rules) and replacements of ESLint core rules (@bitrix24/core).
+// Not enabled, unlike the ESLint preset:
+// - need-alias checks the developer's own webpack.aliases.js, a PhpStorm setting, not the code;
+// - no-io-without-polyfill asks for an IntersectionObserver polyfill browsers no longer need.
 export const rules = {
-	'@bitrix24/bitrix24-rules/no-io-without-polyfill': 'error',
 	'@bitrix24/bitrix24-rules/no-pseudo-private': 'error',
 	'@bitrix24/bitrix24-rules/no-native-events-binding': 'error',
 	'@bitrix24/bitrix24-rules/no-typeof': 'error',
@@ -12,7 +14,6 @@ export const rules = {
 	'@bitrix24/bitrix24-rules/no-native-dom-methods': 'error',
 	'@bitrix24/bitrix24-rules/no-eventemitter-without-namespace': 'error',
 	'@bitrix24/bitrix24-rules/no-bx': 'error',
-	'@bitrix24/bitrix24-rules/need-alias': 'warn',
 	'@bitrix24/bitrix24-rules/sort-imports': 'warn',
 	'@bitrix24/bitrix24-rules/prefer-inline-type-imports': 'warn',
 	'@bitrix24/bitrix24-rules/brace-on-same-line': [

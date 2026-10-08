@@ -34,18 +34,16 @@ export const typescript = {
 };
 
 // Legacy JS files outside src/: compiled bundles and non-ESM code.
-// BX direct usage and IO without polyfill are allowed.
+// BX direct usage is allowed.
 export const legacyScripts = {
 	files: ['**/*.js', FLOW_AS_TS],
 	excludeFiles: ['**/src/**', '**/*.es6.js', '**/*.es6.js.ts'],
 	rules: {
 		'@bitrix24/bitrix24-rules/no-bx': 'off',
-		'@bitrix24/bitrix24-rules/no-io-without-polyfill': 'off',
 	},
 };
 
-// Build and tool config files: Node.js environment, default exports and
-// non-aliased imports are allowed.
+// Build and tool config files: Node.js environment and default exports are allowed.
 export const tooling = {
 	files: [
 		'**/bundle.config.{js,ts}',
@@ -56,7 +54,6 @@ export const tooling = {
 	],
 	env: { node: true },
 	rules: {
-		'@bitrix24/bitrix24-rules/need-alias': 'off',
 		'import/no-default-export': 'off',
 	},
 };

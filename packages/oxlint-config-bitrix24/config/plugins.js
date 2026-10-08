@@ -7,10 +7,8 @@ export const plugins = ['eslint', 'unicorn', 'import', 'promise', 'vue', 'typesc
 
 // JS plugins. Specifiers are absolute so the preset works from any config location.
 export const jsPlugins = [
-	{
-		name: '@bitrix24/bitrix24-rules',
-		specifier: fileURLToPath(import.meta.resolve('@bitrix24/eslint-plugin-bitrix24-rules')),
-	},
+	// the rules of @bitrix24/eslint-plugin-bitrix24-rules, some with fewer false positives
+	{ name: '@bitrix24/bitrix24-rules', specifier: local('../plugins/bitrix24-rules/index.js') },
 	// Replacements of ESLint core rules that oxlint has no native version of.
 	{ name: '@bitrix24/core', specifier: local('../plugins/core/index.js') },
 	// Third-party rules bundled by scripts/build.mjs.
