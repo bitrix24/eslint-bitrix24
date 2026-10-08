@@ -13,6 +13,7 @@ import { rules as importRules } from './config/rules/import.js';
 import { rules as promiseRules } from './config/rules/promise.js';
 import { rules as vueRules } from './config/rules/vue.js';
 import { rules as qualityRules } from './config/rules/quality.js';
+import { rules as detectorRules } from './config/rules/detectors.js';
 
 export default {
 	plugins,
@@ -34,6 +35,7 @@ export default {
 		...promiseRules,
 		...vueRules,
 		...qualityRules,
+		...detectorRules,
 	},
 	overrides: [environment, ...overrides],
 };

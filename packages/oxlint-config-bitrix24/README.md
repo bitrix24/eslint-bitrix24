@@ -34,7 +34,7 @@ so it can be extended from any location.
 
   | Plugin | Rules |
   |--------|-------|
-  | `@bitrix24/bitrix24-rules` | [@bitrix24/eslint-plugin-bitrix24-rules](../eslint-plugin-bitrix24-rules) |
+  | `@bitrix24/bitrix24-rules` | [@bitrix24/eslint-plugin-bitrix24-rules](../eslint-plugin-bitrix24-rules), seven of them replaced by versions with fewer false positives (`plugins/bitrix24-rules`) |
   | `@bitrix24/core` | `camelcase`, `dot-notation`, `consistent-return`: replacements of ESLint core rules |
   | `@stylistic` | formatting rules from `@stylistic/eslint-plugin` |
   | `@bitrix24/unicorn` | `eslint-plugin-unicorn` rules oxlint has no native version of |
@@ -59,6 +59,18 @@ Existing `eslint-disable` comments keep working:
   them as TypeScript under a `*.js.ts` name; the overrides treat such files as JavaScript.
 - `eslint-plugin-sonarjs` is replaced with the native `complexity` (warning above 15) and
   `oxc/branches-sharing-code`.
+- Bug detectors of oxlint that ESLint had no counterpart for are enabled
+  (`config/rules/detectors.js`): `x === []`, `a && a`, `new Error()` without `throw`,
+  `removeEventListener()` with a new function and the like.
+- `@bitrix24/bitrix24-rules` report fewer false positives than in ESLint:
+  - `no-native-dom-methods`, `no-native-events-binding` and `no-style` skip objects the file
+    shows are not DOM ones (type annotations, values written to a variable);
+  - `no-native-dialogs` matches names exactly;
+  - `no-pseudo-private` reports class members and `this._x` only;
+  - `no-bx` leaves `BX.message()` to `no-bx-message`;
+  - `no-typeof` skips checks of undeclared globals and `typeof` used as a value.
+- `need-alias` (checks the developer's `webpack.aliases.js`) and `no-io-without-polyfill`
+  (`IntersectionObserver` needs no polyfill in supported browsers) are not enabled.
 - Not carried over: `no-invalid-this`, `no-restricted-syntax` (`for..in` is covered by
   `guard-for-in`), `no-eq-null` (covered by `eqeqeq`), `no-underscore-dangle` (covered by
   `@bitrix24/bitrix24-rules/no-pseudo-private`), `no-undef-init`, `no-implicit-globals`,

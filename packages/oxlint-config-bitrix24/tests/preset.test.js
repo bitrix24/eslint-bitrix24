@@ -127,6 +127,14 @@ describe('preset', () => {
 			assert.ok(codes.has('@bitrix24/vue(order-in-components)'), `'@bitrix24/vue(order-in-components)' not among ${[...codes].join(', ') || `nothing (files with diagnostics: ${[...new Set(diagnostics.map((d) => d.file))].join(', ')})`}`);
 		});
 
+		it('reports oxlint bug detectors', () => {
+			const codes = codesOf('ext/src/detectors.ts');
+			assert.ok(codes.has('oxc(bad-object-literal-comparison)'), [...codes].join(', '));
+			assert.ok(codes.has('oxc(missing-throw)'), [...codes].join(', '));
+			// an import of inline types only is not empty
+			assert.ok(!codes.has('import(no-empty-named-blocks)'), [...codes].join(', '));
+		});
+
 		it('applies the TypeScript override', () => {
 			const codes = codesOf('ext/src/typed.ts');
 			assert.ok(!codes.has('eslint(no-undef)'));
