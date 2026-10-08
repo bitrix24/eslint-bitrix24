@@ -25,7 +25,7 @@ This plugin is included automatically when using [@bitrix24/eslint-config-bitrix
 | `no-io-without-polyfill` | Disallow IO operations without polyfill |
 | `no-jsdd` | Disallow `jsDD` usage |
 | `no-native-dialogs` | Disallow native browser dialogs (`alert`, `confirm`, `prompt`) |
-| `no-native-dom-methods` | Disallow native DOM manipulation methods (`appendChild`, `insertBefore`, ...) |
+| `no-native-dom-methods` | Disallow native DOM manipulation methods |
 | `no-native-events-binding` | Disallow native event binding |
 | `no-nil-compare` | Disallow loose comparison with `null`/`undefined` |
 | `no-private` | Disallow private class fields |
@@ -35,22 +35,6 @@ This plugin is included automatically when using [@bitrix24/eslint-config-bitrix
 | `no-typeof` | Disallow `typeof` checks |
 | `prefer-inline-type-imports` | Prefer inline `type` keyword in imports |
 | `sort-imports` | Enforce Bitrix24 import ordering convention |
-
-### `no-native-dom-methods` and custom trees
-
-`appendChild()`, `removeChild()`, `replaceChild()`, `insertBefore()` and `replaceChildren()` are
-reported on DOM nodes only. Custom trees with methods of the same names, such as BBCode nodes, are
-told apart by the file itself, since linters have no type information:
-
-- the type annotation of a parameter, a variable, a class property (`this.parent`) or the return
-  type of a class method (`this.getParent()`), Flow or TypeScript, type aliases of the file included;
-- the values written to a variable without an annotation: `new Node()`, `scheme.createElement()`
-  on a custom object, an element of an array of such values; `document.*()`, `Dom.create()` and
-  ``Tag.render`...` `` are DOM;
-- a call that does not match the native signature, such as `parent.replaceChild(node, ...nodes)`;
-- `this.appendChild()` in a class that declares `appendChild()` itself.
-
-A call on an object the file says nothing about is reported, as before.
 
 ### `need-alias` settings
 
