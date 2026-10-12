@@ -1,7 +1,8 @@
 import * as assert from 'node:assert/strict';
 import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const packageDir = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const readJson = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -51,6 +52,24 @@ describe('isolation', () => {
 		{
 			const code = fs.readFileSync(path.join(packageDir, 'dist', file), 'utf8');
 			assert.ok(!code.includes('node_modules/eslint/lib/'), `${file} bundles eslint`);
+		}
+	});
+
+	it('loads dist without the packages it was built from', async () => {
+		// a copy away from any node_modules: what a project gets from npm
+		const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'oxlint-config-dist-'));
+		try
+		{
+			for (const file of fs.readdirSync(path.join(packageDir, 'dist')))
+			{
+				fs.copyFileSync(path.join(packageDir, 'dist', file), path.join(dir, file));
+				const plugin = (await import(pathToFileURL(path.join(dir, file)).href)).default;
+				assert.ok(Object.keys(plugin.rules).length > 0, `${file} has no rules`);
+			}
+		}
+		finally
+		{
+			fs.rmSync(dir, { recursive: true, force: true });
 		}
 	});
 });

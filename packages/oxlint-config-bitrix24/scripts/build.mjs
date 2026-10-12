@@ -4,6 +4,7 @@
 // The list of rules is taken from the preset: every `@stylistic/*`, `@bitrix24/unicorn/*`
 // and `@bitrix24/vue/*` rule it configures gets bundled, nothing else.
 import * as fs from 'node:fs';
+import { isBuiltin } from 'node:module';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
@@ -86,6 +87,37 @@ const stubEslint = {
 	},
 };
 
+// @stylistic/eslint-plugin is built with rolldown, whose output loads the dependencies of its
+// vendored code with a require() made by createRequire(). esbuild does not follow such calls,
+// so the bundle would load those packages from the user's node_modules at runtime; plain
+// require() calls get bundled.
+const bundleRolldownRequires = {
+	name: 'bundle-rolldown-requires',
+	setup(build)
+	{
+		build.onLoad({ filter: /[\\/]@stylistic[\\/]eslint-plugin[\\/]dist[\\/].*\.js$/ }, async (args) => ({
+			contents: (await fs.promises.readFile(args.path, 'utf8')).replace(/\b__require\((["'][^"']+["'])\)/g, 'require($1)'),
+			loader: 'js',
+		}));
+	},
+};
+
+// Packages the bundle may still require at runtime: optional ones, loaded in try/catch.
+const OPTIONAL_REQUIRES = new Set(['typescript']);
+
+// The package depends on nothing the bundle could load at runtime, so dist/ may import
+// only node built-ins and the optional packages.
+function externalPackages(result, outfile)
+{
+	const output = Object.entries(result.metafile.outputs).find(([file]) => path.resolve(file) === outfile)[1];
+	const specifiers = [
+		...output.imports.filter((i) => i.external).map((i) => i.path),
+		...[...fs.readFileSync(outfile, 'utf8').matchAll(/\b(?:__require|require)\(\s*["']([^"']+)["']\s*\)/g)].map((m) => m[1]),
+	];
+
+	return [...new Set(specifiers)].filter((s) => !isBuiltin(s) && !OPTIONAL_REQUIRES.has(s));
+}
+
 const ruleIds = await collectRuleIds();
 fs.rmSync(distDir, { recursive: true, force: true });
 
@@ -133,20 +165,28 @@ for (const [name, rule] of Object.entries(rules))
 export default withLegacyNames(${bundle.wrap ? `${bundle.wrap.name}(${plugin})` : plugin}, ${bundle.legacyId});
 `;
 
+	const outfile = path.join(distDir, bundle.file);
 	const result = await esbuild.build({
 		stdin: { contents, resolveDir: packageDir, sourcefile: bundle.file },
 		bundle: true,
 		platform: 'node',
 		format: 'esm',
 		target: 'node22',
-		outfile: path.join(distDir, bundle.file),
-		plugins: [stubEslint],
+		outfile,
+		plugins: [stubEslint, bundleRolldownRequires],
 		// CommonJS dependencies call require() for node built-ins
 		banner: { js: "import { createRequire as __createRequire } from 'node:module'; const require = __createRequire(import.meta.url);" },
 		legalComments: 'none',
 		metafile: true,
 		logLevel: 'warning',
 	});
+
+	const external = externalPackages(result, outfile);
+	if (external.length > 0)
+	{
+		console.error(`${bundle.file} loads packages at runtime: ${external.join(', ')}`);
+		process.exit(1);
+	}
 
 	for (const input of Object.keys(result.metafile.inputs))
 	{
