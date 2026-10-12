@@ -1,0 +1,55 @@
+{
+	"name": "@bitrix24/oxlint-config-bitrix24",
+	"version": "0.1.0",
+	"description": "Shareable oxlint config for the Bitrix24 JavaScript style guide",
+	"type": "module",
+	"main": "./index.js",
+	"exports": {
+		".": "./index.js",
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"index.js",
+		"config",
+		"plugins",
+		"dist",
+		"THIRD-PARTY-NOTICES.md"
+	],
+	"scripts": {
+		"build": "node scripts/build.mjs",
+		"test": "npm run build && mocha \"tests/**/*.test.js\" --ignore \"tests/fixtures/**\"",
+		"prepack": "npm run build"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bitrix24/eslint-bitrix24.git"
+	},
+	"keywords": [
+		"oxlint"
+	],
+	"author": "Bitrix24",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/bitrix24/eslint-bitrix24/issues"
+	},
+	"homepage": "https://github.com/bitrix24/eslint-bitrix24#readme",
+	"engines": {
+		"node": ">=22.18.0"
+	},
+	"peerDependencies": {
+		"oxlint": "1.87.0"
+	},
+	"dependencies": {
+		"@bitrix24/eslint-plugin-bitrix24-rules": "^1.1.0"
+	},
+	"devDependencies": {
+		"@stylistic/eslint-plugin": "5.10.0",
+		"ajv": "8.20.0",
+		"esbuild": "0.28.2",
+		"eslint-plugin-unicorn": "77.0.0",
+		"eslint-plugin-vue": "10.11.1",
+		"mocha": "12.0.3",
+		"oxlint": "1.87.0",
+		"vue-eslint-parser": "10.4.1"
+	}
+}

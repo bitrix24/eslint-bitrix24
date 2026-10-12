@@ -2,7 +2,7 @@
 
 Custom ESLint rules for the Bitrix24 JavaScript style guide.
 
-Compatible with ESLint 8 and ESLint 9.
+Compatible with ESLint 8, ESLint 9 and oxlint (JS plugins).
 
 ## Installation
 
@@ -35,6 +35,16 @@ This plugin is included automatically when using [@bitrix24/eslint-config-bitrix
 | `no-typeof` | Disallow `typeof` checks |
 | `prefer-inline-type-imports` | Prefer inline `type` keyword in imports |
 | `sort-imports` | Enforce Bitrix24 import ordering convention |
+
+### `need-alias` settings
+
+The rule reads `allowedModules` from `webpack.aliases.js`. The file is looked up in this order:
+
+1. `settings.bitrix24.aliasesFile` - an explicit path;
+2. the nearest `webpack.aliases.js` above the linted file;
+3. `webpack.aliases.js` in the repository the plugin is installed into.
+
+The file is re-read only when it changes.
 
 ## License
 

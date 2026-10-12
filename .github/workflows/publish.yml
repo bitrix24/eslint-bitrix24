@@ -13,6 +13,8 @@ on:
           - eslint-config-bitrix24-mobile
           - eslint-plugin-bitrix24-rules
           - eslint-plugin-bitrix24-janative
+          - oxlint-config-bitrix24
+          - oxlint-config-bitrix24-mobile
       dry-run:
         description: 'Run in dry-run mode (no actual publish)'
         required: false
@@ -31,7 +33,8 @@ jobs:
       - name: Resolve packages to publish
         id: resolve
         run: |
-          ALL='["eslint-config-bitrix24","eslint-config-bitrix24-mobile","eslint-plugin-bitrix24-rules","eslint-plugin-bitrix24-janative"]'
+          # Plugins go first: the configs depend on them and are tested against the published versions.
+          ALL='["eslint-plugin-bitrix24-rules","eslint-plugin-bitrix24-janative","eslint-config-bitrix24","eslint-config-bitrix24-mobile","oxlint-config-bitrix24","oxlint-config-bitrix24-mobile"]'
 
           if [ "${{ inputs.package }}" = "all" ]; then
             echo "packages=${ALL}" >> "$GITHUB_OUTPUT"
@@ -46,6 +49,8 @@ jobs:
       contents: read
       id-token: write
     strategy:
+      # one at a time, in the order above
+      max-parallel: 1
       matrix:
         package: ${{ fromJson(needs.resolve.outputs.packages) }}
 
@@ -77,6 +82,11 @@ jobs:
       - name: Install dependencies
         working-directory: packages/${{ matrix.package }}
         run: npm install --ignore-scripts
+
+      - name: Build local packages the tests use
+        if: matrix.package == 'oxlint-config-bitrix24-mobile'
+        working-directory: packages/oxlint-config-bitrix24
+        run: npm install --ignore-scripts && npm run build
 
       - name: Run tests
         working-directory: packages/${{ matrix.package }}

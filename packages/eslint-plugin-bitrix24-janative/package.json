@@ -1,6 +1,6 @@
 {
 	"name": "@bitrix24/eslint-plugin-bitrix24-janative",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "ESLint rules for the Bitrix24 Janative style guide",
 	"type": "module",
 	"main": "index.js",
@@ -12,7 +12,8 @@
 		"url": "git+https://github.com/bitrix24/eslint-bitrix24.git"
 	},
 	"keywords": [
-		"eslint"
+		"eslint",
+		"oxlint"
 	],
 	"scripts": {
 		"test": "mocha \"tests/**/*.test.js\""
@@ -25,6 +26,11 @@
 	"homepage": "https://github.com/bitrix24/eslint-bitrix24#readme",
 	"peerDependencies": {
 		"eslint": "^8.0.0 || ^9.0.0"
+	},
+	"peerDependenciesMeta": {
+		"eslint": {
+			"optional": true
+		}
 	},
 	"dependencies": {
 		"espree": "^9.6.1 || ^10.0.0"
