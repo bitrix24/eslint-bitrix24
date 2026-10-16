@@ -11,6 +11,8 @@ export const jsPlugins = [
 	{ name: '@bitrix24/bitrix24-rules', specifier: local('../plugins/bitrix24-rules/index.js') },
 	// Replacements of ESLint core rules that oxlint has no native version of.
 	{ name: '@bitrix24/core', specifier: local('../plugins/core/index.js') },
+	// Rules of eslint-plugin-sonarjs, written anew: the plugin is LGPL-licensed and is not bundled.
+	{ name: '@bitrix24/sonarjs', specifier: local('../plugins/sonarjs/index.js') },
 	// Third-party rules bundled by scripts/build.mjs.
 	{ name: '@stylistic', specifier: local('../dist/stylistic.js') },
 	{ name: '@bitrix24/unicorn', specifier: local('../dist/unicorn.js') },

@@ -22,4 +22,15 @@ export const rules = {
 	'prefer-object-spread': 'error',
 	'unicode-bom': ['error', 'never'],
 	'@bitrix24/core/camelcase': ['error', { properties: 'never', ignoreDestructuring: false }],
+	'@bitrix24/core/no-restricted-syntax': [
+		'error',
+		{
+			selector: 'ForInStatement',
+			message: 'for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array.',
+		},
+		{
+			selector: 'WithStatement',
+			message: '`with` is disallowed in strict mode because it makes code impossible to predict and optimize.',
+		},
+	],
 };

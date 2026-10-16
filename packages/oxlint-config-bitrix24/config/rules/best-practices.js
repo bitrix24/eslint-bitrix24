@@ -135,4 +135,5 @@ export const rules = {
 	'prefer-arrow-callback': ['error', { allowNamedFunctions: true }],
 	'@bitrix24/core/consistent-return': 'error',
 	'@bitrix24/core/dot-notation': ['error', { allowKeywords: true }],
+	'@bitrix24/core/no-invalid-this': ['error', { capIsConstructor: true }],
 };

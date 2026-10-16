@@ -72,7 +72,7 @@ export const testing = {
 	},
 	rules: {
 		'max-lines-per-function': 'off',
-		'complexity': 'off',
+		'@bitrix24/sonarjs/cognitive-complexity': 'off',
 	},
 };
 
