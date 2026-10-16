@@ -121,6 +121,17 @@ describe('preset', () => {
 			assert.deepEqual(camelcase.map((d) => d.line), [10, 10, 12]);
 		});
 
+		it('reports restored ESLint core and sonarjs rules', () => {
+			const lines = (code) => diagnostics.filter((d) => d.file === 'ext/src/quality.js' && d.code === code).map((d) => d.line);
+			assert.deepEqual(lines('@bitrix24/sonarjs(no-identical-functions)'), [10]);
+			assert.deepEqual(lines('@bitrix24/sonarjs(no-extra-arguments)'), [30]);
+			assert.deepEqual(lines('@bitrix24/sonarjs(no-use-of-empty-return-value)'), [34]);
+			assert.deepEqual(lines('@bitrix24/core(no-restricted-syntax)'), [26]);
+			assert.deepEqual(lines('@bitrix24/core(no-invalid-this)'), [37]);
+			// disabled by its legacy id
+			assert.deepEqual(lines('@bitrix24/sonarjs(cognitive-complexity)'), []);
+		});
+
 		it('reports vue rules for components declared in .js files', () => {
 			const codes = codesOf('ext/src/component.js');
 			assert.ok(codes.has('@bitrix24/vue(require-prop-types)'), `'@bitrix24/vue(require-prop-types)' not among ${[...codes].join(', ') || `nothing (files with diagnostics: ${[...new Set(diagnostics.map((d) => d.file))].join(', ')})`}`);

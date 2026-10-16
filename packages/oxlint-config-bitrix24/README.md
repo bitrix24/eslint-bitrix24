@@ -35,7 +35,8 @@ so it can be extended from any location.
   | Plugin | Rules |
   |--------|-------|
   | `@bitrix24/bitrix24-rules` | [@bitrix24/eslint-plugin-bitrix24-rules](../eslint-plugin-bitrix24-rules), seven of them replaced by versions with fewer false positives (`plugins/bitrix24-rules`) |
-  | `@bitrix24/core` | `camelcase`, `dot-notation`, `consistent-return`: replacements of ESLint core rules |
+  | `@bitrix24/core` | `camelcase`, `dot-notation`, `consistent-return`, `no-invalid-this`, `no-restricted-syntax`: replacements of ESLint core rules |
+  | `@bitrix24/sonarjs` | `cognitive-complexity`, `no-duplicated-branches`, `no-extra-arguments`, `no-identical-functions`, `no-use-of-empty-return-value`: rules of `eslint-plugin-sonarjs` written anew, since its LGPL license does not allow bundling it |
   | `@stylistic` | formatting rules from `@stylistic/eslint-plugin` |
   | `@bitrix24/unicorn` | `eslint-plugin-unicorn` rules oxlint has no native version of |
   | `@bitrix24/vue` | all `eslint-plugin-vue` rules: the native ones do not recognize the components of `.js` and `.ts` files |
@@ -51,14 +52,17 @@ Existing `eslint-disable` comments keep working:
 - for native rules and `@bitrix24/bitrix24-rules`, oxlint matches them itself;
 - rules of the other JS plugins also honor the ESLint-era ids: `// eslint-disable-line max-len`
   disables `@stylistic/max-len`, `camelcase` disables `@bitrix24/core/camelcase`,
-  `vue/order-in-components` disables `@bitrix24/vue/order-in-components`.
+  `vue/order-in-components` disables `@bitrix24/vue/order-in-components`,
+  `sonarjs/cognitive-complexity` disables `@bitrix24/sonarjs/cognitive-complexity`.
 
 ### Differences from the ESLint config
 
 - Flow syntax is not supported: oxlint has no Flow parser. Tools that lint Flow files present
   them as TypeScript under a `*.js.ts` name; the overrides treat such files as JavaScript.
-- `eslint-plugin-sonarjs` is replaced with the native `complexity` (warning above 15) and
-  `oxc/branches-sharing-code`.
+- Of `eslint-plugin-sonarjs`, `@bitrix24/sonarjs` keeps `cognitive-complexity`, `no-duplicated-branches`,
+  `no-extra-arguments`, `no-identical-functions` and `no-use-of-empty-return-value`. The rest are
+  covered by native rules (`no-dupe-else-if`, `no-self-compare`, `no-useless-catch`,
+  `unicorn/no-lonely-if`, `oxc/const-comparisons`, `oxc/branches-sharing-code`) or not carried over.
 - Bug detectors of oxlint that ESLint had no counterpart for are enabled
   (`config/rules/detectors.js`): `x === []`, `a && a`, `new Error()` without `throw`,
   `removeEventListener()` with a new function and the like.
@@ -76,13 +80,15 @@ Existing `eslint-disable` comments keep working:
   - `no-typeof` skips checks of undeclared globals and `typeof` used as a value.
 - `need-alias` (checks the developer's `webpack.aliases.js`) and `no-io-without-polyfill`
   (`IntersectionObserver` needs no polyfill in supported browsers) are not enabled.
-- Not carried over: `no-invalid-this`, `no-restricted-syntax` (`for..in` is covered by
-  `guard-for-in`), `no-eq-null` (covered by `eqeqeq`), `no-underscore-dangle` (covered by
+- Not carried over: `no-eq-null` (covered by `eqeqeq`), `no-underscore-dangle` (covered by
   `@bitrix24/bitrix24-rules/no-pseudo-private`), `no-undef-init`, `no-implicit-globals`,
   `no-return-await`, `no-dupe-args`, `no-octal`, `no-octal-escape`, `lines-around-directive`,
   `unicorn/better-regex`, `unicorn/no-array-callback-reference`, `vue/jsx-uses-vars`.
 - `consistent-return` checks whether a function can reach its end structurally (return/throw,
   if/else, try, switch with default, infinite loops), not by code path analysis.
+- `no-invalid-this` does not report a TypeScript function that declares a `this` parameter.
+  oxlint takes a `.js` file without imports and exports for a script, and `this` in sloppy code
+  is never reported.
 - `no-redeclare` does not check redeclaration of built-in globals.
 - `env` and `globals` of the preset are declared in an override for `**/*`: oxlint does not carry
   top-level `env` and `globals` over through `extends`.
